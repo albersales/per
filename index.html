@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#8B0000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PER">
+<meta name="description" content="Parañaque Emergency Ready - One-tap access to all emergency contacts in Parañaque City.">
+<title>Parañaque Emergency Ready</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-content:center}
+.app{width:100%;max-width:480px;height:100vh;height:100dvh;background:#f2f2f2;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.screen.active{display:flex}
+.statusbar{background:#8B0000;height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+.statusbar span{color:white;font-size:11px;font-weight:700}
+.header{background:#8B0000;padding:12px 16px 14px;flex-shrink:0}
+.header-top{display:flex;align-items:center;justify-content:space-between}
+.header-title{text-align:center;flex:1;padding:0 8px}
+.header-title h1{color:white;font-size:15px;font-weight:900;letter-spacing:1px;line-height:1.2}
+.header-title p{color:#FFD700;font-size:8px;letter-spacing:1.5px;margin-top:2px}
+.emergency-banner{background:#CC0000;padding:6px 16px;display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0}
+.emergency-banner span{color:white;font-size:11px;font-weight:700;letter-spacing:1px}
+.pulse-dot{width:8px;height:8px;background:#FFD700;border-radius:50%;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
+.section-title{background:#1a1a2e;padding:7px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.section-title span{color:#FFD700;font-size:10px;font-weight:700;letter-spacing:2px}
+.section-line{flex:1;height:1px;background:#FFD700;opacity:0.4}
+.contacts-list{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.contact-btn{border:none;border-radius:12px;padding:0;cursor:pointer;overflow:hidden;display:flex;align-items:stretch;width:100%;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+.contact-icon{width:60px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;background:rgba(0,0,0,0.15)}
+.contact-info{flex:1;padding:11px 13px}
+.contact-name{font-size:16px;font-weight:900;letter-spacing:0.5px;color:#fff}
+.contact-number{font-size:11px;margin-top:3px;line-height:1.5;color:rgba(255,255,255,0.92);font-weight:600}
+.contact-tag{font-size:9px;letter-spacing:1px;margin-top:2px;color:rgba(255,255,255,0.75);font-weight:700;text-transform:uppercase}
+.contact-call{width:46px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.18);font-size:20px;flex-shrink:0}
+.btn-911{background:#F5C400}.btn-911 .contact-name{color:#2b1d00}.btn-911 .contact-number{color:#3d2900;font-weight:700}.btn-911 .contact-tag{color:#5a3e00}
+.btn-eoc{background:#1a7a32}
+.btn-bfp{background:#e01000}
+.btn-pnp{background:#0a2050}
+.btn-hems{background:#1565C0}
+.btn-drrmo{background:#D44000}
+.btn-barangay{background:#e05560}
+.menu-items{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.menu-item{background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid #e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.menu-item-icon{width:40px;height:40px;border-radius:10px;background:#8B0000;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.menu-item-text{flex:1}
+.menu-item-text h3{font-size:13px;font-weight:700;color:#1a1a2e}
+.menu-item-text p{font-size:11px;color:#666;margin-top:2px}
+.menu-item-arrow{color:#8B0000;font-size:18px;font-weight:700}
+.bottom-nav{background:white;border-top:2px solid #eee;display:flex;flex-shrink:0;position:sticky;bottom:0;z-index:50}
+.nav-item{flex:1;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;border-top:3px solid transparent}
+.nav-item span:first-child{font-size:20px}
+.nav-label{font-size:9px;font-weight:700;color:#999;letter-spacing:0.5px}
+.nav-item.active{border-top-color:#8B0000}
+.nav-item.active .nav-label{color:#8B0000}
+/* PROFILE */
+.profile-body{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1}
+.profile-photo-section{background:white;border-radius:14px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #e8e8e8;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.photo-wrapper{position:relative;width:90px;height:90px}
+.photo-circle{width:90px;height:90px;border-radius:50%;border:3px solid #8B0000;overflow:hidden;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:36px}
+.photo-circle img{width:100%;height:100%;object-fit:cover;display:none}
+.photo-edit-btn{position:absolute;bottom:2px;right:2px;width:26px;height:26px;background:#8B0000;border:2px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
+.photo-name{font-size:15px;font-weight:700;color:#1a1a2e}
+.photo-sub{font-size:11px;color:#888}
+.photo-upload-btn{background:#f5f5f5;border:1px dashed #ccc;border-radius:8px;padding:8px 18px;font-size:12px;color:#555;cursor:pointer;font-weight:600}
+.profile-section{background:white;border-radius:10px;padding:14px;border:1px solid #e8e8e8}
+.profile-section-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.profile-section-title span:first-child{font-size:16px}
+.profile-section-title h3{font-size:12px;font-weight:700;color:#8B0000;letter-spacing:1px;text-transform:uppercase}
+.profile-field{margin-bottom:10px}
+.profile-field label{display:block;font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.profile-field input,.profile-field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;color:#333;background:#fafafa;outline:none;font-family:Arial,sans-serif}
+.profile-field input:focus,.profile-field select:focus{border-color:#8B0000;background:white}
+.save-btn{background:#8B0000;color:white;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;width:100%;margin-top:4px}
+/* GO BAG */
+.gobag-body{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1}
+.gobag-hero{background:#1a1a2e;border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px}
+.gobag-hero-icon{font-size:36px}
+.gobag-hero-text h2{color:#FFD700;font-size:16px;font-weight:900}
+.gobag-hero-text p{color:rgba(255,255,255,0.7);font-size:11px;margin-top:3px;line-height:1.4}
+.gobag-category{background:white;border-radius:10px;overflow:hidden;border:1px solid #e8e8e8}
+.gobag-cat-header{padding:10px 14px;display:flex;align-items:center;gap:8px}
+.gobag-cat-header span:first-child{font-size:18px}
+.gobag-cat-header h3{font-size:12px;font-weight:700;color:white;letter-spacing:1px;text-transform:uppercase}
+.gobag-items{padding:8px 14px 12px}
+.gobag-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f5f5f5}
+.gobag-item:last-child{border-bottom:none}
+.gobag-item input[type=checkbox]{width:18px;height:18px;accent-color:#8B0000;cursor:pointer;flex-shrink:0}
+.gobag-item label{font-size:12px;color:#333;cursor:pointer;line-height:1.4}
+.gobag-item input:checked+label{text-decoration:line-through;color:#aaa}
+.cat-water .gobag-cat-header{background:#1565C0}
+.cat-food .gobag-cat-header{background:#e01000}
+.cat-medical .gobag-cat-header{background:#6c3483}
+.cat-clothing .gobag-cat-header{background:#1a7a32}
+.cat-docs .gobag-cat-header{background:#D44000}
+.cat-tools .gobag-cat-header{background:#1a1a2e}
+.progress-bar{background:rgba(255,255,255,0.2);border-radius:999px;height:8px;margin-top:8px;overflow:hidden}
+.progress-fill{background:#FFD700;height:100%;border-radius:999px;transition:width 0.4s ease}
+.reset-btn{background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.7);border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;margin-top:6px}
+/* ABOUT */
+.about-body{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1}
+.about-hero{background:#1a1a2e;border-radius:10px;padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.about-hero h2{color:white;font-size:16px;font-weight:900;letter-spacing:1px}
+.about-hero p{color:#FFD700;font-size:10px;letter-spacing:2px;margin-top:4px;font-style:italic}
+.about-version{color:rgba(255,255,255,0.4);font-size:10px;margin-top:8px}
+.about-card{background:white;border-radius:10px;padding:14px;border:1px solid #e8e8e8}
+.about-card h3{font-size:12px;font-weight:700;color:#8B0000;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.about-card p{font-size:12px;color:#444;line-height:1.7}
+.e911-btn{background:#CC0000;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:none;width:100%;text-decoration:none}
+.e911-btn span{color:white;font-size:14px;font-weight:900;letter-spacing:1px}
+.lockscreen-guide{background:#e8f4fd;border-radius:10px;padding:14px;border:1px solid #b8d9f0}
+.lockscreen-guide h3{font-size:12px;font-weight:700;color:#1a5276;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.ls-steps{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.ls-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.ls-step-icon{width:36px;height:36px;background:#1a5276;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.ls-step-label{font-size:9px;color:#1a5276;font-weight:700;text-align:center;line-height:1.2}
+.ls-arrow{color:#1a5276;font-size:14px;font-weight:700;flex-shrink:0}
+.ls-note{font-size:10px;color:#555;margin-top:8px;line-height:1.5}
+.features-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.feature-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#333}
+.feature-check{color:#1a7a32;font-weight:900;flex-shrink:0;margin-top:1px}
+/* MODALS */
+.modal-overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100;flex-direction:column;justify-content:flex-end}
+.modal-overlay.show{display:flex}
+.modal-sheet{background:white;border-radius:20px 20px 0 0;padding:20px;max-height:85%;overflow-y:auto}
+.modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.modal-subtitle{font-size:12px;color:#888;margin-bottom:16px}
+.modal-input{width:100%;border:2px solid #8B0000;border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:10px;outline:none;font-family:Arial,sans-serif}
+.modal-save{background:#8B0000;color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+.modal-cancel{background:none;border:none;color:#888;font-size:13px;cursor:pointer;width:100%;padding:10px;margin-top:4px}
+/* NUMBER PICKER */
+.num-pick-btn{display:flex;align-items:center;gap:12px;width:100%;background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;text-decoration:none}
+.num-pick-icon{font-size:22px;flex-shrink:0}
+.num-pick-info{flex:1;text-align:left}
+.num-pick-label{font-size:11px;color:#888;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.num-pick-num{font-size:15px;color:#1a1a2e;font-weight:700;margin-top:2px}
+.num-pick-call{font-size:20px}
+/* TOAST */
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:#1a7a32;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1}
+/* OFFLINE BANNER */
+.offline-banner{background:#D44000;padding:6px 16px;text-align:center;font-size:11px;color:white;font-weight:700;display:none;flex-shrink:0}
+.offline-banner.show{display:block}
+#photo-file-input{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="statusbar">
+  <span id="clock">9:41</span>
+  <span>PER v2.0</span>
+  <span>📶 🔋</span>
+</div>
+
+<!-- Offline indicator -->
+<div class="offline-banner" id="offline-banner">⚠️ You are offline — Emergency contacts still available</div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="header">
+    <div class="header-top">
+      <div style="width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px">🛡️</div>
+      <div class="header-title">
+        <h1>PARAÑAQUE<br>EMERGENCY READY</h1>
+        <p>PREPARED · EDUCATED · READY</p>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+  </div>
+  <div class="emergency-banner">
+    <div class="pulse-dot"></div>
+    <span>EMERGENCY HOTLINES</span>
+    <div class="pulse-dot"></div>
+  </div>
+  <div class="contacts-list">
+
+    <!-- 911 - single number, direct call -->
+    <a class="contact-btn btn-911" href="tel:911">
+      <div class="contact-icon">🚨</div>
+      <div class="contact-info">
+        <div class="contact-name">911</div>
+        <div class="contact-tag">NATIONAL EMERGENCY HOTLINE</div>
+      </div>
+      <div class="contact-call" style="color:#2b1d00">📞</div>
+    </a>
+
+    <!-- EOC - multiple numbers -->
+    <button class="contact-btn btn-eoc" onclick="showNumberPicker('EOC','Parañaque Emergency Operations Center','🟢',[['(02)88207783','02882077837'],['09160966249','09160966249'],['09563940176','09563940176']])">
+      <div class="contact-icon" style="font-size:12px;font-weight:900;color:rgba(255,255,255,0.9)">24/7</div>
+      <div class="contact-info">
+        <div class="contact-name">EOC</div>
+        <div class="contact-number">(02)88207783 · 09160966249<br>09563940176</div>
+      </div>
+      <div class="contact-call">📞</div>
+    </button>
+
+    <!-- BFP - multiple numbers -->
+    <button class="contact-btn btn-bfp" onclick="showNumberPicker('BFP','Bureau of Fire Protection','🔴',[['(02)88269131','0288269131'],['(02)84260219','0284260219'],['(02)84260246','0284260246']])">
+      <div class="contact-icon">🔥</div>
+      <div class="contact-info">
+        <div class="contact-name">BFP</div>
+        <div class="contact-number">(02)88269131 · (02)84260219<br>(02)84260246</div>
+      </div>
+      <div class="contact-call">📞</div>
+    </button>
+
+    <!-- PNP - single number -->
+    <a class="contact-btn btn-pnp" href="tel:0282862877">
+      <div class="contact-icon">👮</div>
+      <div class="contact-info">
+        <div class="contact-name">PNP</div>
+        <div class="contact-number">(02)82862877</div>
+        <div class="contact-tag">PARAÑAQUE POLICE</div>
+      </div>
+      <div class="contact-call">📞</div>
+    </a>
+
+    <!-- HEMS - multiple numbers -->
+    <button class="contact-btn btn-hems" onclick="showNumberPicker('HEMS','Health Emergency Management Staff','💙',[['(02)88267464','0288267464'],['09298777779','09298777779'],['09524884476','09524884476']])">
+      <div class="contact-icon">🚑</div>
+      <div class="contact-info">
+        <div class="contact-name">HEMS</div>
+        <div class="contact-number">(02)88267464 · 09298777779<br>09524884476</div>
+      </div>
+      <div class="contact-call">📞</div>
+    </button>
+
+    <!-- DRRMO - single number -->
+    <a class="contact-btn btn-drrmo" href="tel:0287880503">
+      <div class="contact-icon">⚠️</div>
+      <div class="contact-info">
+        <div class="contact-name">DRRMO</div>
+        <div class="contact-number">(02)87880503</div>
+        <div class="contact-tag">DISASTER RISK REDUCTION</div>
+      </div>
+      <div class="contact-call">📞</div>
+    </a>
+
+    <!-- Barangay - user set -->
+    <button class="contact-btn btn-barangay" id="barangay-btn" onclick="handleBarangayTap()">
+      <div class="contact-icon">🏠</div>
+      <div class="contact-info">
+        <div class="contact-name">MY BARANGAY</div>
+        <div class="contact-number" id="barangay-display">Tap to set your barangay number</div>
+      </div>
+      <div class="contact-call" id="barangay-call-icon">✏️</div>
+    </button>
+  </div>
+
+  <div class="section-title" style="margin:4px 12px 0">
+    <span class="section-line"></span><span>QUICK ACCESS</span><span class="section-line"></span>
+  </div>
+  <div class="menu-items">
+    <div class="menu-item" onclick="showScreen('profile')">
+      <div class="menu-item-icon">👤</div>
+      <div class="menu-item-text"><h3>MY EMERGENCY PROFILE</h3><p>View / Edit your medical info</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="showScreen('gobag')">
+      <div class="menu-item-icon" style="background:#1a1a2e">🎒</div>
+      <div class="menu-item-text"><h3>72-HOUR GO BAG GUIDE</h3><p>Emergency preparedness checklist</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="screen-profile">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('home')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>MY EMERGENCY PROFILE</h1></div>
+      <div style="width:32px;text-align:center;font-size:16px">🔒</div>
+    </div>
+  </div>
+  <div class="profile-body">
+    <div class="profile-photo-section">
+      <div class="photo-wrapper">
+        <div class="photo-circle">
+          <img id="profile-photo-img" src="" alt="Profile Photo">
+          <span id="photo-placeholder">👤</span>
+        </div>
+        <div class="photo-edit-btn" onclick="document.getElementById('photo-file-input').click()">✏️</div>
+      </div>
+      <input type="file" id="photo-file-input" accept="image/*" onchange="handlePhotoUpload(event)">
+      <div style="text-align:center">
+        <div class="photo-name" id="display-name">Your Name</div>
+        <div class="photo-sub">Emergency Profile · Parañaque City</div>
+      </div>
+      <button class="photo-upload-btn" onclick="document.getElementById('photo-file-input').click()">📷 Change Profile Photo</button>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title"><span>👤</span><h3>Personal Information</h3></div>
+      <div class="profile-field"><label>Full Name</label><input type="text" placeholder="Juan Dela Cruz" id="p-name" oninput="updateDisplayName()"></div>
+      <div class="profile-field"><label>Date of Birth</label><input type="date" id="p-dob"></div>
+      <div class="profile-field"><label>Address</label><input type="text" placeholder="123 Street, Parañaque City" id="p-address"></div>
+      <div class="profile-field"><label>Barangay</label>
+        <select id="p-barangay">
+          <option value="">Select barangay...</option>
+          <option>Baclaran</option><option>Don Bosco</option><option>Don Galo</option>
+          <option>La Huerta</option><option>Manuyo Uno</option><option>Manuyo Dos</option>
+          <option>Marcelo Green</option><option>Paranaque I</option><option>Paranaque II</option>
+          <option>Paranaque III</option><option>Paranaque IV</option><option>Paranaque V</option>
+          <option>Paranaque VI</option><option>San Antonio</option><option>San Dionisio</option>
+          <option>San Isidro</option><option>San Martin de Porres</option>
+          <option>Santo Nino</option><option>Sun Valley</option><option>Tambo</option><option>Vitalez</option>
+        </select>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title"><span>❤️</span><h3>Medical Information</h3></div>
+      <div class="profile-field"><label>Blood Type</label>
+        <select id="p-blood">
+          <option value="">Select blood type...</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </div>
+      <div class="profile-field"><label>Allergies</label><input type="text" placeholder="e.g. Penicillin, Shellfish" id="p-allergies"></div>
+      <div class="profile-field"><label>Medical Conditions</label><input type="text" placeholder="e.g. Hypertension, Asthma" id="p-conditions"></div>
+      <div class="profile-field"><label>Maintenance Medications</label><input type="text" placeholder="e.g. Amlodipine 5mg (1x daily)" id="p-meds"></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title"><span>📞</span><h3>Emergency Contact</h3></div>
+      <div class="profile-field"><label>Contact Person</label><input type="text" placeholder="Full name" id="p-ec-name"></div>
+      <div class="profile-field"><label>Relationship</label><input type="text" placeholder="e.g. Wife, Son, Mother" id="p-ec-rel"></div>
+      <div class="profile-field"><label>Mobile Number</label><input type="tel" placeholder="09XX-XXX-XXXX" id="p-ec-num"></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title"><span>🏘️</span><h3>Barangay Information</h3></div>
+      <div class="profile-field"><label>Barangay Name</label><input type="text" placeholder="e.g. San Dionisio" id="p-brgy-name"></div>
+      <div class="profile-field"><label>Barangay Contact Number</label><input type="tel" placeholder="Your barangay hotline" id="p-brgy-num"></div>
+    </div>
+    <button class="save-btn" onclick="saveProfile()">💾 SAVE PROFILE</button>
+    <div style="height:12px"></div>
+  </div>
+</div>
+
+<!-- GO BAG -->
+<div class="screen" id="screen-gobag">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('home')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>72-HOUR GO BAG GUIDE</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="gobag-body">
+    <div class="gobag-hero">
+      <div class="gobag-hero-icon">🎒</div>
+      <div class="gobag-hero-text">
+        <h2>72-HOUR CHECKLIST</h2>
+        <p>Essential items for you and your family for at least 72 hours during emergencies.</p>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div style="color:#FFD700;font-size:10px;margin-top:4px" id="progress-text">0 of 24 items packed</div>
+        <button class="reset-btn" onclick="resetChecklist()">↺ Reset Checklist</button>
+      </div>
+    </div>
+    <div class="gobag-category cat-water"><div class="gobag-cat-header"><span>💧</span><h3>Water</h3></div>
+      <div class="gobag-items">
+        <div class="gobag-item"><input type="checkbox" id="g1" onchange="updateProgress()"><label for="g1">Drinking water (3 liters per person per day)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g2" onchange="updateProgress()"><label for="g2">Water purification tablets</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g3" onchange="updateProgress()"><label for="g3">Water container / collapsible jug</label></div>
+      </div>
+    </div>
+    <div class="gobag-category cat-food"><div class="gobag-cat-header"><span>🍱</span><h3>Food</h3></div>
+      <div class="gobag-items">
+        <div class="gobag-item"><input type="checkbox" id="g4" onchange="updateProgress()"><label for="g4">Ready-to-eat meals (3-day supply)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g5" onchange="updateProgress()"><label for="g5">Canned goods with manual can opener</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g6" onchange="updateProgress()"><label for="g6">Energy bars / snacks</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g7" onchange="updateProgress()"><label for="g7">Powdered milk / baby food (if needed)</label></div>
+      </div>
+    </div>
+    <div class="gobag-category cat-medical"><div class="gobag-cat-header"><span>🩺</span><h3>Medical</h3></div>
+      <div class="gobag-items">
+        <div class="gobag-item"><input type="checkbox" id="g8" onchange="updateProgress()"><label for="g8">First aid kit</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g9" onchange="updateProgress()"><label for="g9">Maintenance medications (7-day supply)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g10" onchange="updateProgress()"><label for="g10">Prescription copies</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g11" onchange="updateProgress()"><label for="g11">Face masks / alcohol / sanitizer</label></div>
+      </div>
+    </div>
+    <div class="gobag-category cat-clothing"><div class="gobag-cat-header"><span>👕</span><h3>Clothing</h3></div>
+      <div class="gobag-items">
+        <div class="gobag-item"><input type="checkbox" id="g12" onchange="updateProgress()"><label for="g12">Change of clothes (2 sets per person)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g13" onchange="updateProgress()"><label for="g13">Raincoat / poncho</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g14" onchange="updateProgress()"><label for="g14">Sturdy footwear / extra sandals</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g15" onchange="updateProgress()"><label for="g15">Blanket or sleeping bag</label></div>
+      </div>
+    </div>
+    <div class="gobag-category cat-docs"><div class="gobag-cat-header"><span>📄</span><h3>Documents</h3></div>
+      <div class="gobag-items">
+        <div class="gobag-item"><input type="checkbox" id="g16" onchange="updateProgress()"><label for="g16">ID cards (photocopies in waterproof bag)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g17" onchange="updateProgress()"><label for="g17">Insurance / medical records</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g18" onchange="updateProgress()"><label for="g18">Emergency cash (small bills)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g19" onchange="updateProgress()"><label for="g19">Family emergency contact list (printed)</label></div>
+      </div>
+    </div>
+    <div class="gobag-category cat-tools"><div class="gobag-cat-header"><span>🔦</span><h3>Tools & Safety</h3></div>
+      <div class="gobag-items">
+        <div class="gobag-item"><input type="checkbox" id="g20" onchange="updateProgress()"><label for="g20">Flashlight with extra batteries</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g21" onchange="updateProgress()"><label for="g21">Battery-powered or hand-crank radio</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g22" onchange="updateProgress()"><label for="g22">Whistle (to signal for help)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g23" onchange="updateProgress()"><label for="g23">Power bank (fully charged)</label></div>
+        <div class="gobag-item"><input type="checkbox" id="g24" onchange="updateProgress()"><label for="g24">Multi-tool or Swiss army knife</label></div>
+      </div>
+    </div>
+    <div style="height:12px"></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="screen" id="screen-about">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('home')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>ABOUT & HELP</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="about-body">
+    <div class="about-hero">
+      <div style="font-size:52px;margin-bottom:8px">🛡️</div>
+      <h2>PARAÑAQUE EMERGENCY READY</h2>
+      <p>PREPARED · EDUCATED · READY</p>
+      <div class="about-version">Version 2.0 · Developed by Zayon Systems</div>
+    </div>
+    <div class="about-card">
+      <h3>About This App</h3>
+      <p>Parañaque Emergency Ready (PER) was created by <strong>Zayon Systems</strong> for the people of Parañaque City — because in a crisis, every second counts. We believe that access to the right information at the right moment can mean the difference between life and death.<br><br>PER puts critical emergency contacts, your personal medical profile, and life-saving guides directly in your hands — no searching, no delays. This app is our commitment to the community: to keep families safer, to help first responders act faster, and to ensure that every resident of Parañaque City is <em>Prepared, Educated, and Ready</em>.</p>
+    </div>
+    <div class="lockscreen-guide">
+      <h3>🔒 Enable Lock Screen Emergency Info</h3>
+      <div class="ls-steps">
+        <div class="ls-step"><div class="ls-step-icon">⚙️</div><div class="ls-step-label">Settings</div></div>
+        <div class="ls-arrow">›</div>
+        <div class="ls-step"><div class="ls-step-icon">🛡️</div><div class="ls-step-label">Safety & Emergency</div></div>
+        <div class="ls-arrow">›</div>
+        <div class="ls-step"><div class="ls-step-icon">📋</div><div class="ls-step-label">Emergency Info</div></div>
+        <div class="ls-arrow">›</div>
+        <div class="ls-step"><div class="ls-step-icon">✏️</div><div class="ls-step-label">Add / Edit</div></div>
+      </div>
+      <div class="ls-note">Enable Android's built-in Emergency Information so first responders can access your details from the lock screen — even when your phone is locked.</div>
+    </div>
+    <div class="about-card">
+      <h3>App Features v2.0</h3>
+      <div class="features-list">
+        <div class="feature-item"><span class="feature-check">✓</span><span>One-touch emergency hotline buttons</span></div>
+        <div class="feature-item"><span class="feature-check">✓</span><span>Number picker for multi-number contacts</span></div>
+        <div class="feature-item"><span class="feature-check">✓</span><span>Personal emergency profile with photo</span></div>
+        <div class="feature-item"><span class="feature-check">✓</span><span>Profile & photo saved permanently on device</span></div>
+        <div class="feature-item"><span class="feature-check">✓</span><span>Works 100% offline — no internet needed</span></div>
+        <div class="feature-item"><span class="feature-check">✓</span><span>72-hour Go Bag checklist</span></div>
+        <div class="feature-item"><span class="feature-check">✓</span><span>Lock screen emergency info guide</span></div>
+      </div>
+    </div>
+    <div class="about-card" style="border-left:4px solid #CC0000;border-radius:0 10px 10px 0">
+      <h3>Disclaimer</h3>
+      <p>PER is intended to facilitate quick access to emergency contacts and personal emergency information. It does not replace emergency medical services or professional advice. Always call 911 in life-threatening situations.</p>
+    </div>
+    <a class="e911-btn" href="tel:911"><span>🚨</span><span>IN AN EMERGENCY, CALL 911 IMMEDIATELY</span></a>
+    <div style="text-align:center;padding:10px 0 4px">
+      <div style="font-size:10px;color:#999">© 2025 Zayon Systems</div>
+      <div style="font-size:10px;color:#bbb;margin-top:2px">For the people of Parañaque City</div>
+    </div>
+    <div style="height:12px"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showScreen('home')"><span>🏠</span><span class="nav-label">HOME</span></button>
+  <button class="nav-item" id="nav-profile" onclick="showScreen('profile')"><span>👤</span><span class="nav-label">PROFILE</span></button>
+  <button class="nav-item" id="nav-gobag" onclick="showScreen('gobag')"><span>🎒</span><span class="nav-label">GO BAG</span></button>
+  <button class="nav-item" id="nav-about" onclick="showScreen('about')"><span>ℹ️</span><span class="nav-label">ABOUT</span></button>
+</div>
+
+<!-- BARANGAY MODAL -->
+<div class="modal-overlay" id="barangay-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏠 My Barangay Hotline</div>
+    <div class="modal-subtitle">Enter your barangay name and emergency contact number</div>
+    <input class="modal-input" type="text" placeholder="Barangay name (e.g. San Dionisio)" id="modal-brgy-name">
+    <input class="modal-input" type="tel" placeholder="Contact number (e.g. 0918-765-4321)" id="modal-brgy-num">
+    <button class="modal-save" onclick="saveBarangay()">💾 SAVE</button>
+    <button class="modal-cancel" onclick="hideModal('barangay-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- NUMBER PICKER MODAL -->
+<div class="modal-overlay" id="number-picker-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="picker-title">Select Number to Call</div>
+    <div class="modal-subtitle" id="picker-subtitle">Choose which number to dial</div>
+    <div id="picker-numbers"></div>
+    <button class="modal-cancel" onclick="hideModal('number-picker-modal')">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+// CLOCK
+function updateClock(){
+  var d=new Date(),h=d.getHours(),m=d.getMinutes();
+  document.getElementById('clock').textContent=(h%12||12)+':'+(m<10?'0':'')+m+(h<12?' AM':' PM');
+}
+updateClock();setInterval(updateClock,30000);
+
+// OFFLINE DETECTION
+function updateOnlineStatus(){
+  var b=document.getElementById('offline-banner');
+  if(!navigator.onLine){b.classList.add('show');}else{b.classList.remove('show');}
+}
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);
+updateOnlineStatus();
+
+// NAVIGATION
+function showScreen(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('screen-'+n).classList.add('active');
+  var nav=document.getElementById('nav-'+n);
+  if(nav)nav.classList.add('active');
+  document.getElementById('screen-'+n).scrollTop=0;
+}
+
+// TOAST
+function showToast(msg,color){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=color||'#1a7a32';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// MODALS
+function hideModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+});
+
+// NUMBER PICKER - FIX #2
+function showNumberPicker(name, fullName, emoji, numbers){
+  document.getElementById('picker-title').textContent = emoji + ' ' + name;
+  document.getElementById('picker-subtitle').textContent = fullName;
+  var container = document.getElementById('picker-numbers');
+  container.innerHTML = '';
+  numbers.forEach(function(pair, i){
+    var display = pair[0];
+    var dialNum = pair[1];
+    var btn = document.createElement('a');
+    btn.href = 'tel:' + dialNum;
+    btn.className = 'num-pick-btn';
+    btn.innerHTML =
+      '<div class="num-pick-icon">📞</div>' +
+      '<div class="num-pick-info">' +
+        '<div class="num-pick-label">Number ' + (i+1) + '</div>' +
+        '<div class="num-pick-num">' + display + '</div>' +
+      '</div>' +
+      '<div class="num-pick-call">›</div>';
+    container.appendChild(btn);
+  });
+  document.getElementById('number-picker-modal').classList.add('show');
+}
+
+// BARANGAY
+var barangayNum = '';
+function handleBarangayTap(){
+  if(barangayNum){
+    // If number already set, call it directly
+    window.location.href = 'tel:' + barangayNum.replace(/\D/g,'');
+  } else {
+    showBarangayModal();
+  }
+}
+function showBarangayModal(){
+  var n=localStorage.getItem('brgy-name');
+  var num=localStorage.getItem('brgy-num');
+  if(n)document.getElementById('modal-brgy-name').value=n;
+  if(num)document.getElementById('modal-brgy-num').value=num;
+  document.getElementById('barangay-modal').classList.add('show');
+}
+function saveBarangay(){
+  var name=document.getElementById('modal-brgy-name').value.trim();
+  var num=document.getElementById('modal-brgy-num').value.trim();
+  if(!num){showToast('⚠️ Please enter a number','#D44000');return;}
+  localStorage.setItem('brgy-name',name);
+  localStorage.setItem('brgy-num',num);
+  barangayNum = num;
+  document.getElementById('barangay-display').textContent = name ? (name+' · '+num) : num;
+  document.getElementById('barangay-call-icon').textContent = '📞';
+  hideModal('barangay-modal');
+  showToast('✓ Barangay saved!');
+}
+
+// PROFILE - FIX #1: compress photo before saving
+function updateDisplayName(){
+  var v=document.getElementById('p-name').value.trim();
+  document.getElementById('display-name').textContent=v||'Your Name';
+}
+
+function compressAndSavePhoto(dataUrl, callback){
+  var img = new Image();
+  img.onload = function(){
+    var canvas = document.createElement('canvas');
+    var MAX = 300;
+    var w = img.width, h = img.height;
+    if(w > h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+    else{ if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.7));
+  };
+  img.src = dataUrl;
+}
+
+function handlePhotoUpload(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    compressAndSavePhoto(ev.target.result, function(compressed){
+      try {
+        localStorage.setItem('profile-photo', compressed);
+        applyPhoto(compressed);
+        showToast('✓ Photo saved!');
+      } catch(err){
+        showToast('⚠️ Photo too large, try a smaller image','#D44000');
+      }
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyPhoto(src){
+  var img = document.getElementById('profile-photo-img');
+  var ph = document.getElementById('photo-placeholder');
+  img.src = src;
+  img.style.display = 'block';
+  ph.style.display = 'none';
+}
+
+function saveProfile(){
+  var fields=['p-name','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'];
+  fields.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) localStorage.setItem(id, el.value);
+  });
+  updateDisplayName();
+  showToast('✓ Profile saved permanently!');
+}
+
+function loadProfile(){
+  var fields=['p-name','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'];
+  fields.forEach(function(id){
+    var val=localStorage.getItem(id);
+    var el=document.getElementById(id);
+    if(val&&el) el.value=val;
+  });
+  var name=localStorage.getItem('p-name');
+  if(name) document.getElementById('display-name').textContent=name;
+  var photo=localStorage.getItem('profile-photo');
+  if(photo) applyPhoto(photo);
+  // restore barangay
+  var bn=localStorage.getItem('brgy-name');
+  var bnum=localStorage.getItem('brgy-num');
+  if(bnum){
+    barangayNum = bnum;
+    document.getElementById('barangay-display').textContent = bn ? (bn+' · '+bnum) : bnum;
+    document.getElementById('barangay-call-icon').textContent = '📞';
+  }
+}
+
+// GO BAG
+function updateProgress(){
+  var checked=document.querySelectorAll('.gobag-items input[type=checkbox]:checked').length;
+  var pct=Math.round((checked/24)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=checked+' of 24 items packed';
+  var state={};
+  for(var i=1;i<=24;i++) state['g'+i]=document.getElementById('g'+i).checked;
+  localStorage.setItem('gobag-state',JSON.stringify(state));
+}
+function resetChecklist(){
+  for(var i=1;i<=24;i++) document.getElementById('g'+i).checked=false;
+  updateProgress();
+  showToast('↺ Checklist reset');
+}
+function loadGobag(){
+  try{
+    var state=JSON.parse(localStorage.getItem('gobag-state')||'{}');
+    for(var i=1;i<=24;i++){
+      if(state['g'+i]) document.getElementById('g'+i).checked=true;
+    }
+    updateProgress();
+  }catch(e){}
+}
+
+// INIT
+window.addEventListener('load',function(){
+  loadProfile();
+  loadGobag();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('service-worker.js')
+      .then(()=>console.log('PER: Service Worker registered'))
+      .catch(e=>console.log('SW error:',e));
+  }
+});
+</script>
+</body>
+</html>
