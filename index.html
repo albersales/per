@@ -578,31 +578,31 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🏛️ Office of Civil Defense (OCD)</div>
       <div class="hospital-addr" style="margin-bottom:8px">National civil defense & disaster coordination</div>
-      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/civildefensePH')">📘 OPEN OCD FACEBOOK</button>
+      <button class="btn-primary" onclick="openFacebookApp('https://www.facebook.com/civildefensePH')">📘 OPEN OCD FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🌧️ PAGASA</div>
       <div class="hospital-addr" style="margin-bottom:8px">Weather, tropical cyclone & rainfall warnings</div>
-      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/PAGASA.DOST.GOV.PH')">📘 OPEN PAGASA FACEBOOK</button>
+      <button class="btn-primary" onclick="openFacebookApp('https://www.facebook.com/PAGASA.DOST.GOV.PH')">📘 OPEN PAGASA FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🛡️ NDRRMC</div>
       <div class="hospital-addr" style="margin-bottom:8px">National Disaster Risk Reduction & Management Council</div>
-      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/NDRRMC')">📘 OPEN NDRRMC FACEBOOK</button>
+      <button class="btn-primary" onclick="openFacebookApp('https://www.facebook.com/NDRRMC')">📘 OPEN NDRRMC FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🚨 Parañaque CDRRMO</div>
       <div class="hospital-addr" style="margin-bottom:8px">City Disaster Risk Reduction & Management Office — local emergency alerts</div>
-      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/pquecdrrmo/')">📘 OPEN PARAÑAQUE CDRRMO FACEBOOK</button>
+      <button class="btn-primary" onclick="openFacebookApp('https://www.facebook.com/pquecdrrmo/')">📘 OPEN PARAÑAQUE CDRRMO FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🏙️ Parañaque City Information Office</div>
       <div class="hospital-addr" style="margin-bottom:8px">Official local government updates & advisories</div>
-      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/pioparanaque')">📘 OPEN PARAÑAQUE PIO FACEBOOK</button>
+      <button class="btn-primary" onclick="openFacebookApp('https://www.facebook.com/pioparanaque')">📘 OPEN PARAÑAQUE PIO FACEBOOK</button>
     </div>
 
     <div class="hint-box">
@@ -1377,8 +1377,50 @@ function copyReportText(){
 }
 
 // ===== EXTERNAL OPEN (Median-friendly) =====
+function openFacebookApp(pageUrl){
+  // Open directly in the Facebook app when installed (Android).
+  // Avoids the intermediate browser hop.
+  var path = (pageUrl || '').replace(/^https?:\/\/(m\.|www\.)?facebook\.com\//i, '').replace(/\/$/, '').replace(/^\//, '');
+  var httpsUrl = 'https://www.facebook.com/' + path;
+  // Android Intent → Facebook app (com.facebook.katana)
+  var intentUrl = 'intent://www.facebook.com/' + path +
+    '#Intent;scheme=https;package=com.facebook.katana;S.browser_fallback_url=' +
+    encodeURIComponent(httpsUrl) + ';end';
+  // iOS-style / generic Facebook deep link fallback
+  var fbDeep = 'fb://facewebmodal/f?href=' + encodeURIComponent(httpsUrl);
+
+  var ua = (navigator.userAgent || '').toLowerCase();
+  var isAndroid = ua.indexOf('android') >= 0;
+
+  try {
+    if (isAndroid) {
+      window.location.href = intentUrl;
+      // If Facebook app is missing, intent fallback URL should open browser
+      return;
+    }
+  } catch (e) {}
+
+  try {
+    window.location.href = fbDeep;
+    // After a short delay, fall back to https if app didn't open
+    setTimeout(function(){
+      window.location.href = httpsUrl;
+    }, 800);
+    return;
+  } catch (e) {}
+
+  // Final fallback
+  if (typeof openExternal === 'function') openExternal(httpsUrl);
+  else window.location.href = httpsUrl;
+}
+
 function openExternal(url){
   if(!url)return;
+  // If it's a Facebook URL, prefer the native app
+  if(/facebook\.com/i.test(url)){
+    openFacebookApp(url);
+    return;
+  }
   try{
     if(window.cordova && window.cordova.InAppBrowser){
       window.cordova.InAppBrowser.open(url,'_system');
@@ -1387,21 +1429,7 @@ function openExternal(url){
   }catch(e){}
   try{ window.open(url,'_system'); }catch(e){}
   try{ window.open(url,'_blank'); }catch(e){}
-  // Last resort
   setTimeout(function(){ window.location.href = url; }, 250);
 }
 
-// INIT
-window.addEventListener('load',function(){
-  loadProfile();loadGobag();loadFamilyPlan();loadAlertsPage();renderHospitalList();
-  initGPS();
-  // Auto-advance splash after 3 seconds if user doesn't tap
-  setTimeout(function(){
-    if(document.getElementById('screen-splash').classList.contains('active')){
-      showScreen('home');
-    }
-  }, 4000);
-});
-</script>
-</body>
-</html>
+>
