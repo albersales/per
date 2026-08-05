@@ -552,7 +552,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
       <h2>🏥 Government & Private Hospitals</h2>
       <p>Includes public (government) and private hospitals in Parañaque. Sorted by distance when GPS is available.</p>
       <div class="gps-badge" style="align-self:flex-start"><span class="gps-dot" id="gps-dot-hosp"></span><span id="gps-text-hosp">Locating…</span></div>
-      <button class="btn-outline" style="margin-top:8px;padding:6px" onclick="setManualLocation()">📍 Set location manually</button>
+      
     </div>
     <div id="hospital-list"></div>
     <div class="hint-box">List covers major private hospitals in and near Parañaque City. No internet connection is required to view this list — only for the "Directions" link.</div>
@@ -1158,18 +1158,9 @@ function haversine(lat1,lon1,lat2,lon2){
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 function openHospitalDirections(lat, lng, name){
-  // Prefer Google Maps directions URL
-  var gmaps = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&destination_place_id=&travelmode=driving';
-  // Also try geo: for native maps apps
-  var geo = 'geo:' + lat + ',' + lng + '?q=' + lat + ',' + lng + '(' + encodeURIComponent(name || 'Hospital') + ')';
-  // Use openExternal (Median-friendly)
-  if(typeof openExternal === 'function'){
-    openExternal(gmaps);
-  }else{
-    try{ window.open(gmaps, '_system'); }catch(e){}
-    try{ window.open(gmaps, '_blank'); }catch(e){}
-    window.location.href = gmaps;
-  }
+  // Navigate in-place so Median "App Browser" can keep Maps inside the app
+  var gmaps = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&travelmode=driving';
+  window.location.href = gmaps;
 }
 
 function renderHospitalList(){
@@ -1193,7 +1184,7 @@ function renderHospitalList(){
       (h.phone?'<div style="font-size:12px;color:#8B0000;font-weight:700;margin-top:4px">📞 '+h.phone+'</div>':'')+
       '<div class="action-row" style="margin-top:8px">'+
       (phoneClean?'<a class="btn-outline" style="text-decoration:none;text-align:center" href="tel:'+phoneClean+'">📞 CALL</a>':'<span></span>')+
-      '<button class="btn-primary" style="flex:1" onclick="openHospitalDirections('+h.lat+','+h.lng+',\''+h.name.replace(/'/g,"\\'")+'\')">🧭 DIRECTIONS</button>'+
+      '<a class="btn-primary" style="text-decoration:none;text-align:center;flex:1;display:flex;align-items:center;justify-content:center" href="https://www.google.com/maps/dir/?api=1&destination='+h.lat+','+h.lng+'&travelmode=driving">🧭 DIRECTIONS</a>'+
       '</div></div>';
   }).join('');
 }
