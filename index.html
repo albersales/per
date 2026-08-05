@@ -467,7 +467,12 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     </div>
     <div class="menu-item" onclick="showScreen('alerts')">
       <div class="menu-item-icon" style="background:#1a1a2e">📢</div>
-      <div class="menu-item-text"><h3>ALERTS & ANNOUNCEMENTS</h3><p>Follow your city/town's official Facebook Page</p></div>
+      <div class="menu-item-text"><h3>OFFICIAL ALERTS</h3><p>OCD, PAGASA, NDRRMC & civil defense sources</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="showScreen('windy')">
+      <div class="menu-item-icon" style="background:#1565C0">🌬️</div>
+      <div class="menu-item-text"><h3>WINDY WEATHER MAP</h3><p>Live wind, rain & weather for Parañaque</p></div>
       <span class="menu-item-arrow">›</span>
     </div>
     <div class="menu-item" onclick="showScreen('report')">
@@ -501,8 +506,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     <input type="file" accept="image/*" capture="environment" id="camera-input" style="display:none" onchange="handleCameraPhoto(event)">
     <button class="btn-primary" onclick="document.getElementById('camera-input').click()">📷 TAKE PHOTO</button>
     <div class="action-row" id="camera-actions" style="display:none">
-      <button class="btn-outline" onclick="downloadGeotagPhoto()">⬇️ SAVE TO PHONE</button>
-      <button class="btn-outline" onclick="shareGeotagPhoto()">📤 SHARE</button>
+      <button class="btn-primary" onclick="shareGeotagPhoto()">📤 SHARE STAMPED PHOTO</button>
     </div>
     <div class="hint-box">Tip: fill in the Location box before or after taking the photo — it gets stamped either way, since you can retake the stamp by tapping Take Photo again.</div>
   </div>
@@ -560,22 +564,82 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   <div class="header">
     <div class="header-top">
       <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
-      <div class="header-title"><h1>ALERTS & ANNOUNCEMENTS</h1></div>
+      <div class="header-title"><h1>OFFICIAL ALERTS</h1></div>
       <div style="width:32px"></div>
     </div>
   </div>
   <div class="feature-body">
     <div class="feature-hero">
-      <h2>📢 Your City/Town's Page</h2>
-      <p>Enter the Facebook Page username of your city, town, or barangay's official account (e.g. ParanaqueCityGov) to follow their posts here.</p>
+      <h2>📢 Official Emergency Sources</h2>
+      <p>Open trusted national and local civil defense channels for the latest alerts, weather warnings, and advisories.</p>
     </div>
-    <div class="profile-field"><label>Facebook Page Username or URL</label><input type="text" placeholder="e.g. ParanaqueCityGov" id="alerts-fb-page"></div>
-    <button class="btn-primary" onclick="saveAlertsPage()">💾 SAVE & LOAD FEED</button>
-    <div id="alerts-feed-wrap" style="display:none">
-      <div class="section-title" style="margin:4px 0"><span class="section-line"></span><span>LATEST POSTS</span><span class="section-line"></span></div>
-      <div style="background:white;border-radius:10px;overflow:hidden;border:1px solid #e0e0e0" id="alerts-feed"></div>
+
+    <div class="card" style="margin-bottom:8px">
+      <div class="hospital-name">🏛️ Office of Civil Defense (OCD)</div>
+      <div class="hospital-addr" style="margin-bottom:8px">National civil defense & disaster coordination</div>
+      <div class="action-row">
+        <button class="btn-primary" style="flex:1" onclick="openExternal('https://ocd.gov.ph/')">🌐 WEBSITE</button>
+        <button class="btn-outline" style="flex:1" onclick="openExternal('https://www.facebook.com/civildefensePH')">📘 FB</button>
+      </div>
+      <button class="btn-outline" style="margin-top:8px" onclick="openExternal('https://x.com/civildefensePH')">𝕏 OCD on X / Twitter</button>
     </div>
-    <div class="hint-box">This shows the Page's public posts and requires an internet connection. Only pages that are public will load. Nothing loads until you enter a page and save. If the "Open on Facebook" button doesn't do anything, use "Copy Link" and paste it into your browser app instead.</div>
+
+    <div class="card" style="margin-bottom:8px">
+      <div class="hospital-name">🌧️ PAGASA</div>
+      <div class="hospital-addr" style="margin-bottom:8px">Weather, tropical cyclone & rainfall warnings</div>
+      <div class="action-row">
+        <button class="btn-primary" style="flex:1" onclick="openExternal('https://www.pagasa.dost.gov.ph/')">🌐 WEBSITE</button>
+        <button class="btn-outline" style="flex:1" onclick="openExternal('https://www.facebook.com/PAGASA.DOST.GOV.PH')">📘 FB</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:8px">
+      <div class="hospital-name">🛡️ NDRRMC</div>
+      <div class="hospital-addr" style="margin-bottom:8px">National Disaster Risk Reduction & Management Council</div>
+      <div class="action-row">
+        <button class="btn-primary" style="flex:1" onclick="openExternal('https://ndrrmc.gov.ph/')">🌐 WEBSITE</button>
+        <button class="btn-outline" style="flex:1" onclick="openExternal('https://www.facebook.com/NDRRMC')">📘 FB</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:8px">
+      <div class="hospital-name">🏙️ Parañaque City</div>
+      <div class="hospital-addr" style="margin-bottom:8px">Local government & city updates</div>
+      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/ParanaqueCityGov')">📘 Parañaque City Gov FB</button>
+    </div>
+
+    <div class="hint-box">
+      These buttons open the official pages outside the app (browser or Facebook/X app). This is the most reliable way to receive live alerts inside a wrapped app.
+    </div>
+  </div>
+</div>
+
+<!-- ===== WINDY WEATHER MAP ===== -->
+<div class="screen" id="screen-windy">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>WINDY MAP</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="feature-body" style="padding:0;display:flex;flex-direction:column;flex:1">
+    <div class="feature-hero" style="margin:12px;border-radius:10px">
+      <h2>🌬️ Live Weather for Parañaque</h2>
+      <p>Wind, rain, temperature & radar. Pinch to zoom. Requires internet.</p>
+    </div>
+    <div style="flex:1;min-height:360px;background:#111;margin:0 12px 12px;border-radius:10px;overflow:hidden">
+      <iframe
+        id="windy-iframe"
+        src="https://embed.windy.com/embed2.html?lat=14.479&lon=121.017&detailLat=14.479&detailLon=121.017&width=650&height=450&zoom=11&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=default&metricTemp=%C2%B0C&radarRange=-1"
+        style="width:100%;height:100%;min-height:360px;border:none"
+        allowfullscreen
+        loading="lazy">
+      </iframe>
+    </div>
+    <div style="padding:0 12px 16px">
+      <button class="btn-outline" onclick="openExternal('https://www.windy.com/?14.479,121.017,11')">🌐 OPEN FULL WINDY IN BROWSER</button>
+    </div>
   </div>
 </div>
 
@@ -1263,6 +1327,21 @@ function copyReportText(){
   t.select();t.setSelectionRange(0,999999);
   try{document.execCommand('copy');showToast('✓ Copied to clipboard!');}
   catch(e){navigator.clipboard&&navigator.clipboard.writeText(t.value);showToast('✓ Copied!');}
+}
+
+// ===== EXTERNAL OPEN (Median-friendly) =====
+function openExternal(url){
+  if(!url)return;
+  try{
+    if(window.cordova && window.cordova.InAppBrowser){
+      window.cordova.InAppBrowser.open(url,'_system');
+      return;
+    }
+  }catch(e){}
+  try{ window.open(url,'_system'); }catch(e){}
+  try{ window.open(url,'_blank'); }catch(e){}
+  // Last resort
+  setTimeout(function(){ window.location.href = url; }, 250);
 }
 
 // INIT
