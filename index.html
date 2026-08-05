@@ -462,7 +462,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     </div>
     <div class="menu-item" onclick="showScreen('hospitals')">
       <div class="menu-item-icon">🏥</div>
-      <div class="menu-item-text"><h3>NEAREST PRIVATE HOSPITALS</h3><p>Sorted by distance from your location</p></div>
+      <div class="menu-item-text"><h3>NEAREST HOSPITALS</h3><p>Government & private hospitals near you</p></div>
       <span class="menu-item-arrow">›</span>
     </div>
     <div class="menu-item" onclick="showScreen('alerts')">
@@ -506,7 +506,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     <input type="file" accept="image/*" capture="environment" id="camera-input" style="display:none" onchange="handleCameraPhoto(event)">
     <button class="btn-primary" onclick="document.getElementById('camera-input').click()">📷 TAKE PHOTO</button>
     <div class="action-row" id="camera-actions" style="display:none">
-      <button class="btn-primary" onclick="shareGeotagPhoto()">📤 SHARE STAMPED PHOTO</button>
+      <button class="btn-primary" onclick="shareGeotagPhoto()">📤 SHARE PHOTO</button>
     </div>
     <div class="hint-box">Tip: fill in the Location box before or after taking the photo — it gets stamped either way, since you can retake the stamp by tapping Take Photo again.</div>
   </div>
@@ -549,8 +549,8 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   </div>
   <div class="feature-body">
     <div class="feature-hero">
-      <h2>🏥 Private Hospitals</h2>
-      <p>Sorted by distance from your current location. Distances are approximate straight-line (as-the-crow-flies).</p>
+      <h2>🏥 Government & Private Hospitals</h2>
+      <p>Includes public (government) and private hospitals in Parañaque. Sorted by distance when GPS is available.</p>
       <div class="gps-badge" style="align-self:flex-start"><span class="gps-dot" id="gps-dot-hosp"></span><span id="gps-text-hosp">Locating…</span></div>
       <button class="btn-outline" style="margin-top:8px;padding:6px" onclick="setManualLocation()">📍 Set location manually</button>
     </div>
@@ -771,6 +771,7 @@ function showScreen(n){
   var nav=document.getElementById('nav-'+n);
   if(nav)nav.classList.add('active');
   document.getElementById('screen-'+n).scrollTop=0;
+  if(n==='hospitals')renderHospitalList();
 }
 
 // TOAST
@@ -1056,48 +1057,28 @@ function handleCameraPhoto(e){
     };img.src=ev.target.result;
   };r.readAsDataURL(file);
 }
-function showShareFallback(dataUrl){
-  var overlay=document.createElement('div');
-  overlay.id='geotag-fallback-overlay';
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
-  overlay.innerHTML=
-    '<div style="color:#FFD700;font-size:15px;font-weight:800;text-align:center;margin-bottom:8px;line-height:1.4">Could not open the share menu.</div>'+
-    '<div style="color:#fff;font-size:13px;text-align:center;margin-bottom:6px;line-height:1.5">Take a <b>screenshot</b> of this stamped photo,<br>then open <b>Messenger</b> and send the screenshot.</div>'+
-    '<div style="color:#aaa;font-size:11px;text-align:center;margin-bottom:12px">Samsung: press Side key + Volume Down together</div>'+
-    '<img src="'+dataUrl+'" style="max-width:100%;max-height:58vh;border-radius:8px;border:2px solid #FFD700">'+
-    '<button onclick="document.getElementById(\'geotag-fallback-overlay\').remove()" style="margin-top:16px;background:#8B0000;color:white;border:none;border-radius:8px;padding:12px 28px;font-size:14px;font-weight:700">CLOSE</button>';
-  document.body.appendChild(overlay);
-  showToast('Screenshot this photo, then send via Messenger');
-}
-
 function shareGeotagPhoto(){
   if(!geotagCanvas)return;
-  showToast('Preparing photo for sharing…');
+  showToast('Preparing photo…');
   geotagCanvas.toBlob(function(blob){
-    if(!blob){
-      showShareFallback(geotagCanvas.toDataURL('image/jpeg',0.85));
-      return;
-    }
     var file=new File([blob],'PER-geotag-'+Date.now()+'.jpg',{type:'image/jpeg'});
-
-    // Try the system share sheet (user can pick Messenger)
+    // This is the same path that previously worked as "Save to Phone"
+    // and successfully opened the system share sheet (including Messenger)
     if(navigator.share){
       navigator.share({
-        files: [file],
-        title: 'Geotagged Photo',
-        text: 'Stamped emergency photo from Parañaque Emergency Ready'
+        files:[file],
+        title:'Geotagged Photo',
+        text:'Stamped emergency photo from PER'
       }).then(function(){
-        showToast('✓ Shared');
+        showToast('Choose Messenger or another app');
       }).catch(function(err){
-        // User cancelled OR share not supported for files → show fallback
-        if(err && err.name === 'AbortError'){
-          showToast('Share cancelled');
-        }else{
-          showShareFallback(geotagCanvas.toDataURL('image/jpeg',0.85));
+        // User cancelled is fine; other errors just toast
+        if(err && err.name!=='AbortError'){
+          showToast('Share cancelled or not available','#D44000');
         }
       });
     }else{
-      showShareFallback(geotagCanvas.toDataURL('image/jpeg',0.85));
+      showToast('Sharing is not available on this device','#D44000');
     }
   },'image/jpeg',0.85);
 }
@@ -1160,16 +1141,37 @@ function loadFamilyPlan(){
 // ===== NEAREST PRIVATE HOSPITAL LOCATOR (feature 3) =====
 // NOTE: coordinates are approximate — verify/adjust before relying on them for navigation.
 var HOSPITALS=[
-  {name:"Parañaque Doctors' Hospital",addr:'175 Doña Soledad Ave, Better Living, Don Bosco, Parañaque',phone:'0287760644',lat:14.4795,lng:121.0173},
-  {name:'Olivarez General Hospital',addr:'Dr. A. Santos Ave (Sucat Rd), San Dionisio, Parañaque',phone:'0288421644',lat:14.4855,lng:120.9930},
-  {name:'Medical Center Parañaque',addr:'Dr. A. Santos Ave, Parañaque',phone:'',lat:14.4795,lng:120.9975},
-  {name:'Our Lady of Peace Hospital',addr:'Parañaque, Metro Manila',phone:'',lat:14.488333,lng:120.983694}
+  // Government / Public
+  {name:"Ospital ng Parañaque",addr:'440 Quirino Ave, La Huerta, Parañaque',phone:'0288254902',lat:14.5010,lng:120.9915,type:'gov'},
+  {name:"Ospital ng Parañaque District II",addr:'187 Taiwan Ext. cor. Doña Soledad Ave, Don Bosco, Parañaque',phone:'0282345459',lat:14.4798,lng:121.0195,type:'gov'},
+  // Private
+  {name:"Parañaque Doctors' Hospital",addr:'175 Doña Soledad Ave, Better Living, Don Bosco, Parañaque',phone:'0287760644',lat:14.4795,lng:121.0173,type:'private'},
+  {name:"Olivarez General Hospital",addr:'Dr. A. Santos Ave (Sucat Rd), San Dionisio, Parañaque',phone:'0288267966',lat:14.4855,lng:120.9930,type:'private'},
+  {name:"Medical Center Parañaque",addr:'Dr. A. Santos Ave, Sucat, Parañaque',phone:'0285319999',lat:14.4795,lng:120.9975,type:'private'},
+  {name:"Our Lady of Peace Hospital",addr:'Coastal Road, Brgy. San Dionisio, Parañaque',phone:'0287404893',lat:14.4883,lng:120.9837,type:'private'},
+  {name:"Unihealth Parañaque Hospital",addr:'Dr. A. Santos Ave, Brgy. San Isidro, Parañaque',phone:'028320636',lat:14.4680,lng:121.0120,type:'private'},
+  {name:"South Superhighway Medical Center",addr:'Km. 17 West Service Road, Brgy. Marcelo Green, Parañaque',phone:'0288232027',lat:14.4700,lng:121.0400,type:'private'}
 ];
 function haversine(lat1,lon1,lat2,lon2){
   var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
   var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
+function openHospitalDirections(lat, lng, name){
+  // Prefer Google Maps directions URL
+  var gmaps = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&destination_place_id=&travelmode=driving';
+  // Also try geo: for native maps apps
+  var geo = 'geo:' + lat + ',' + lng + '?q=' + lat + ',' + lng + '(' + encodeURIComponent(name || 'Hospital') + ')';
+  // Use openExternal (Median-friendly)
+  if(typeof openExternal === 'function'){
+    openExternal(gmaps);
+  }else{
+    try{ window.open(gmaps, '_system'); }catch(e){}
+    try{ window.open(gmaps, '_blank'); }catch(e){}
+    window.location.href = gmaps;
+  }
+}
+
 function renderHospitalList(){
   var list=document.getElementById('hospital-list');if(!list)return;
   var items=HOSPITALS.map(function(hpt){
@@ -1177,15 +1179,21 @@ function renderHospitalList(){
     return Object.assign({},hpt,{dist:dist});
   });
   if(lastPos)items.sort(function(a,b){return a.dist-b.dist;});
-  list.innerHTML=items.map(function(h){
+  list.innerHTML=items.map(function(h, i){
+    var typeBadge=h.type==='gov'
+      ? '<span style="font-size:9px;font-weight:700;background:#1a7a32;color:white;padding:2px 6px;border-radius:999px;margin-left:6px">GOVERNMENT</span>'
+      : '<span style="font-size:9px;font-weight:700;background:#555;color:white;padding:2px 6px;border-radius:999px;margin-left:6px">PRIVATE</span>';
+    var phoneClean=(h.phone||'').replace(/\D/g,'');
     return '<div class="card" style="margin-bottom:8px">'+
-      '<div class="card-row" style="justify-content:space-between">'+
-      '<div class="hospital-name">🏥 '+h.name+'</div>'+
+      '<div class="card-row" style="justify-content:space-between;align-items:flex-start">'+
+      '<div class="hospital-name">🏥 '+h.name+typeBadge+'</div>'+
       (h.dist!=null?'<div class="hospital-dist">'+h.dist.toFixed(1)+' km</div>':'')+
-      '</div><div class="hospital-addr">'+h.addr+'</div>'+
+      '</div>'+
+      '<div class="hospital-addr">'+h.addr+'</div>'+
+      (h.phone?'<div style="font-size:12px;color:#8B0000;font-weight:700;margin-top:4px">📞 '+h.phone+'</div>':'')+
       '<div class="action-row" style="margin-top:8px">'+
-      (h.phone?'<a class="btn-outline" style="text-decoration:none;text-align:center" href="tel:'+h.phone+'">📞 CALL</a>':'<span></span>')+
-      '<a class="btn-primary" style="text-decoration:none;text-align:center" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination='+h.lat+','+h.lng+'">🧭 DIRECTIONS</a>'+
+      (phoneClean?'<a class="btn-outline" style="text-decoration:none;text-align:center" href="tel:'+phoneClean+'">📞 CALL</a>':'<span></span>')+
+      '<button class="btn-primary" style="flex:1" onclick="openHospitalDirections('+h.lat+','+h.lng+',\''+h.name.replace(/'/g,"\\'")+'\')">🧭 DIRECTIONS</button>'+
       '</div></div>';
   }).join('');
 }
