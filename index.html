@@ -163,6 +163,12 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .camera-frame{background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:200px}
 .camera-frame img,.camera-frame canvas{width:100%;display:block}
 .hint-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 12px;font-size:11px;color:#7a5c00;line-height:1.4}
+.ice-card{background:linear-gradient(135deg,#8B0000,#a30000);border-radius:12px;padding:12px 14px;color:white;box-shadow:0 2px 8px rgba(139,0,0,0.35)}
+.ice-title{font-size:11px;font-weight:900;letter-spacing:0.5px;color:#FFD700;display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.ice-row{font-size:12px;line-height:1.6}
+.ice-row b{color:#FFD700}
+.ice-call{display:block;text-align:center;text-decoration:none;background:white;color:#8B0000;font-weight:800;font-size:12px;border-radius:8px;padding:9px;margin-top:8px}
+.ice-setup{background:white;border:2px dashed #8B0000;border-radius:12px;padding:12px 14px;text-align:center;font-size:12px;color:#8B0000;font-weight:700}
 .num-pick-btn{display:flex;align-items:center;gap:12px;width:100%;background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;text-decoration:none}
 .num-pick-label{font-size:11px;color:#888;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .num-pick-num{font-size:15px;color:#1a1a2e;font-weight:700;margin-top:2px}
@@ -209,6 +215,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   <div style="display:flex;justify-content:center;padding:6px 0 0;background:#1a1a2e">
     <div class="gps-badge" id="gps-badge"><span class="gps-dot searching" id="gps-dot"></span><span id="gps-text">LOCATING GPS…</span></div>
   </div>
+  <div id="ice-card-wrap" style="padding:10px 12px 0"></div>
   <div class="contacts-list">
     <a class="contact-btn btn-911" href="tel:911">
       <div class="contact-icon">🚨</div>
@@ -257,14 +264,18 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
       </div>
       <div class="contact-call">📞</div>
     </a>
-    <button class="contact-btn btn-barangay" id="barangay-btn" onclick="handleBarangayTap()">
-      <div class="contact-icon">🏠</div>
-      <div class="contact-info">
-        <div class="contact-name">MY BARANGAY</div>
-        <div class="contact-number" id="barangay-display">Tap to set your barangay number</div>
-      </div>
-      <div class="contact-call" id="barangay-call-icon">✏️</div>
-    </button>
+    <div style="display:flex;gap:6px;align-items:stretch">
+      <button class="contact-btn btn-barangay" id="barangay-btn" onclick="handleBarangayTap()" style="flex:1">
+        <div class="contact-icon">🏠</div>
+        <div class="contact-info">
+          <div class="contact-name">MY BARANGAY</div>
+          <div class="contact-number" id="barangay-display">Tap to set your barangay number</div>
+        </div>
+        <div class="contact-call" id="barangay-call-icon">✏️</div>
+      </button>
+      <button onclick="showBarangayModal()" style="background:#e05560;border:none;border-radius:12px;color:white;font-size:16px;padding:0 14px;cursor:pointer" title="Edit barangay numbers">✏️</button>
+    </div>
+    <div id="barangay-extra-list" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 12px"></div>
   </div>
   <div class="section-title" style="margin:4px 12px 0">
     <span class="section-line"></span><span>QUICK ACCESS</span><span class="section-line"></span>
@@ -665,9 +676,12 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">🏠 My Barangay Hotline</div>
-    <div class="modal-subtitle">Enter your barangay name and contact number</div>
+    <div class="modal-subtitle">Enter your barangay name and main contact number</div>
     <input class="modal-input" type="text" placeholder="Barangay name (e.g. San Dionisio)" id="modal-brgy-name">
-    <input class="modal-input" type="tel" placeholder="Contact number (e.g. 0918-765-4321)" id="modal-brgy-num">
+    <input class="modal-input" type="tel" placeholder="Main contact number (e.g. 0918-765-4321)" id="modal-brgy-num">
+    <div class="section-title" style="margin:10px 0 4px"><span class="section-line"></span><span>ADDITIONAL NUMBERS</span><span class="section-line"></span></div>
+    <div id="brgy-extra-inputs"></div>
+    <button class="add-btn" style="margin-bottom:8px" onclick="addBarangayExtraRow()">➕ ADD NUMBER (e.g. Tanod, Purok Leader)</button>
     <button class="modal-save" onclick="saveBarangay()">💾 SAVE</button>
     <button class="modal-cancel" onclick="hideModal('barangay-modal')">Cancel</button>
   </div>
@@ -734,6 +748,7 @@ function showNumberPicker(name,fullName,numbers){
 
 // BARANGAY
 var barangayNum='';
+var brgyExtraCount=0;
 function handleBarangayTap(){
   if(barangayNum){window.location.href='tel:'+barangayNum.replace(/\D/g,'');}
   else{showBarangayModal();}
@@ -743,17 +758,56 @@ function showBarangayModal(){
   var num=localStorage.getItem('brgy-num');
   if(n)document.getElementById('modal-brgy-name').value=n;
   if(num)document.getElementById('modal-brgy-num').value=num;
+  document.getElementById('brgy-extra-inputs').innerHTML='';brgyExtraCount=0;
+  var extras=[];
+  try{extras=JSON.parse(localStorage.getItem('brgy-extras')||'[]');}catch(e){}
+  extras.forEach(function(ex){addBarangayExtraRow(ex);});
   document.getElementById('barangay-modal').classList.add('show');
+}
+function addBarangayExtraRow(prefill){
+  brgyExtraCount++;
+  var id=brgyExtraCount;
+  var div=document.createElement('div');
+  div.className='family-member';div.id='brgy-extra-'+id;
+  div.innerHTML='<button class="remove-x" onclick="document.getElementById(\'brgy-extra-'+id+'\').remove()">✕</button>'+
+    '<input class="modal-input" style="margin-bottom:6px" type="text" placeholder="Label (e.g. Tanod, Purok 1)" id="brgy-extra-label-'+id+'">'+
+    '<input class="modal-input" style="margin-bottom:0" type="tel" placeholder="Number" id="brgy-extra-num-'+id+'">';
+  document.getElementById('brgy-extra-inputs').appendChild(div);
+  if(prefill){
+    document.getElementById('brgy-extra-label-'+id).value=prefill.label||'';
+    document.getElementById('brgy-extra-num-'+id).value=prefill.num||'';
+  }
 }
 function saveBarangay(){
   var name=document.getElementById('modal-brgy-name').value.trim();
   var num=document.getElementById('modal-brgy-num').value.trim();
-  if(!num){showToast('⚠️ Please enter a number','#D44000');return;}
+  if(!num){showToast('⚠️ Please enter a main number','#D44000');return;}
+  var extras=[];
+  document.querySelectorAll('#brgy-extra-inputs .family-member').forEach(function(div){
+    var id=div.id.split('-')[2];
+    var label=document.getElementById('brgy-extra-label-'+id).value.trim();
+    var enum_=document.getElementById('brgy-extra-num-'+id).value.trim();
+    if(enum_)extras.push({label:label||'Additional',num:enum_});
+  });
   localStorage.setItem('brgy-name',name);localStorage.setItem('brgy-num',num);
+  localStorage.setItem('brgy-extras',JSON.stringify(extras));
   barangayNum=num;
   document.getElementById('barangay-display').textContent=name?(name+' · '+num):num;
   document.getElementById('barangay-call-icon').textContent='📞';
+  renderBarangayExtras(extras);
   hideModal('barangay-modal');showToast('✓ Barangay saved!');
+}
+function renderBarangayExtras(extras){
+  var wrap=document.getElementById('barangay-extra-list');
+  wrap.innerHTML=extras.map(function(ex){
+    return '<a href="tel:'+ex.num.replace(/\D/g,'')+'" style="text-decoration:none;background:white;border:1px solid #e0e0e0;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:700;color:#e05560;display:inline-flex;gap:4px;align-items:center">📞 '+ex.label+'</a>';
+  }).join('');
+}
+function loadBarangayExtras(){
+  try{
+    var extras=JSON.parse(localStorage.getItem('brgy-extras')||'[]');
+    renderBarangayExtras(extras);
+  }catch(e){}
 }
 
 // PROFILE
@@ -794,7 +848,7 @@ function saveProfile(){
   ['p-name','p-own-num','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'].forEach(function(id){
     var el=document.getElementById(id);if(el)localStorage.setItem(id,el.value);
   });
-  updateDisplayName();showToast('✓ Profile saved!');
+  updateDisplayName();renderIceCard();showToast('✓ Profile saved!');
 }
 function loadProfile(){
   ['p-name','p-own-num','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'].forEach(function(id){
@@ -811,6 +865,35 @@ function loadProfile(){
     document.getElementById('barangay-display').textContent=bn?(bn+' · '+bnum):bnum;
     document.getElementById('barangay-call-icon').textContent='📞';
   }
+  loadBarangayExtras();
+  renderIceCard();
+}
+function esc(s){
+  var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;
+}
+function renderIceCard(){
+  var wrap=document.getElementById('ice-card-wrap');if(!wrap)return;
+  var name=(localStorage.getItem('p-name')||'').trim();
+  var ecName=(localStorage.getItem('p-ec-name')||'').trim();
+  var ecNum=(localStorage.getItem('p-ec-num')||'').trim();
+  if(!name&&!ecNum){
+    wrap.innerHTML='<div class="ice-setup" onclick="showScreen(\'profile\')">🚑 Fill in your Profile so responders can identify you and reach your emergency contact if you\'re unconscious ›</div>';
+    return;
+  }
+  var ecRel=(localStorage.getItem('p-ec-rel')||'').trim();
+  var blood=(localStorage.getItem('p-blood')||'').trim();
+  var allergies=(localStorage.getItem('p-allergies')||'').trim();
+  var conditions=(localStorage.getItem('p-conditions')||'').trim();
+  var html='<div class="ice-card">'+
+    '<div class="ice-title">🚑 IN CASE OF EMERGENCY — FOR RESPONDERS</div>'+
+    '<div class="ice-row"><b>'+esc(name||'Name not set')+'</b></div>'+
+    (blood?'<div class="ice-row">Blood type: <b>'+esc(blood)+'</b></div>':'')+
+    (allergies?'<div class="ice-row">Allergies: <b>'+esc(allergies)+'</b></div>':'')+
+    (conditions?'<div class="ice-row">Conditions: <b>'+esc(conditions)+'</b></div>':'')+
+    (ecName?'<div class="ice-row">Emergency contact: <b>'+esc(ecName)+(ecRel?' ('+esc(ecRel)+')':'')+'</b></div>':'')+
+    (ecNum?'<a class="ice-call" href="tel:'+ecNum.replace(/\D/g,'')+'">📞 CALL EMERGENCY CONTACT — '+esc(ecNum)+'</a>':'')+
+    '</div>';
+  wrap.innerHTML=html;
 }
 
 // GO BAG
@@ -879,7 +962,7 @@ function handleCameraPhoto(e){
     var img=new Image();
     img.onload=function(){
       var c=document.createElement('canvas');
-      var MAX=1280,w=img.width,h=img.height;
+      var MAX=2400,w=img.width,h=img.height;
       if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
       c.width=w;c.height=h;
       var ctx=c.getContext('2d');
@@ -921,22 +1004,32 @@ function handleCameraPhoto(e){
 }
 function downloadGeotagPhoto(){
   if(!geotagCanvas)return;
-  // Data-URI downloads frequently fail silently inside wrapped app WebViews
-  // (incl. Median APKs) because there's no real download handler for them.
-  // A Blob object URL clicked via a real <a download> is recognized by the
-  // WebView's default download listener in most app-wrapper frameworks, so
-  // try that first; fall back to sharing if it's not available at all.
+  // Testing on-device showed the plain anchor/blob download does not
+  // reliably save the STAMPED canvas image inside the Median-wrapped app
+  // (Android's camera capture intent can auto-save an unstamped copy to the
+  // gallery on its own, which is what showed up instead). The native share
+  // sheet is confirmed to deliver the stamped image correctly, so route
+  // "Save" through it and point the user at the "Save/Save to Files" option
+  // most Android share sheets offer, falling back to the anchor/blob method
+  // only if sharing isn't available at all.
   geotagCanvas.toBlob(function(blob){
-    try{
-      var url=URL.createObjectURL(blob);
-      var a=document.createElement('a');
-      a.download='PER-geotag-'+Date.now()+'.jpg';
-      a.href=url;
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(function(){URL.revokeObjectURL(url);},4000);
-      showToast('Saving photo… check your gallery or Downloads folder');
-    }catch(err){
-      shareGeotagPhoto();
+    var file=new File([blob],'PER-geotag-'+Date.now()+'.jpg',{type:'image/jpeg'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'Geotagged Photo'}).then(function(){
+        showToast('In the menu, choose "Save image" / "Save to Files" or your Gallery app');
+      }).catch(function(){});
+    }else{
+      try{
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement('a');
+        a.download='PER-geotag-'+Date.now()+'.jpg';
+        a.href=url;
+        document.body.appendChild(a);a.click();document.body.removeChild(a);
+        setTimeout(function(){URL.revokeObjectURL(url);},4000);
+        showToast('Saving photo… check your gallery or Downloads folder');
+      }catch(err){
+        showToast('Could not save — try Share instead','#D44000');
+      }
     }
   },'image/jpeg',0.9);
 }
@@ -1057,29 +1150,18 @@ function loadAlertsPage(){
 function renderAlertsFeed(page){
   var cleanPage=page.replace(/^https?:\/\/(www\.)?facebook\.com\//i,'').replace(/^@/,'').replace(/\/$/,'');
   var url='https://www.facebook.com/'+cleanPage;
-  // Facebook's embeddable Page Plugin, and target=_blank links in general,
-  // frequently don't work inside wrapped app WebViews (no new-window
-  // handler). Give a plain same-window link plus a guaranteed copy-link
-  // fallback so the person can always get to the page one way or another.
+  // The Facebook Page Plugin embed and in-app link taps have both failed in
+  // testing inside the Median-wrapped app — this is almost certainly the
+  // app wrapper's Link Handling configuration blocking navigation to an
+  // external domain, not something fixable from the page's own code. Show
+  // the link as plain selectable text as a guaranteed manual fallback.
   var html='<div style="padding:14px">'+
-    '<div style="font-size:12px;color:#666;margin-bottom:10px">Tap below to view the latest posts from this Page.</div>'+
+    '<div style="font-size:12px;color:#666;margin-bottom:10px">Tap below to view the latest posts from this Page. If tapping does nothing, select and copy the link below and paste it into your phone\'s browser app.</div>'+
     '<a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+url+'">📘 OPEN '+cleanPage+' ON FACEBOOK</a>'+
-    '<button class="btn-outline" style="margin-bottom:12px" onclick="copyAlertsLink()">📋 COPY LINK</button>'+
-    '<div id="alerts-embed-attempt"></div>'+
+    '<input class="modal-input" readonly onclick="this.select()" value="'+url+'" style="margin-bottom:0;font-size:11px">'+
     '</div>';
   document.getElementById('alerts-feed').innerHTML=html;
   document.getElementById('alerts-feed-wrap').style.display='block';
-  window.__alertsUrl=url;
-  var iframe='<iframe src="https://www.facebook.com/plugins/page.php?href='+encodeURIComponent(url)+'&tabs=timeline&width=340&height=420&small_header=true&hide_cover=false" width="100%" height="420" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="encrypted-media"></iframe>';
-  document.getElementById('alerts-embed-attempt').innerHTML=iframe;
-}
-function copyAlertsLink(){
-  var ta=document.createElement('textarea');
-  ta.value=window.__alertsUrl||'';ta.style.position='fixed';ta.style.opacity='0';
-  document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,999999);
-  try{document.execCommand('copy');showToast('✓ Link copied — paste it into your browser app');}
-  catch(e){showToast('⚠️ Could not copy — long-press the button link instead','#D44000');}
-  document.body.removeChild(ta);
 }
 
 // ===== INCIDENT REPORT (feature 6) =====
