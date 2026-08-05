@@ -312,6 +312,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     <div class="profile-section">
       <div class="profile-section-title"><span style="font-size:16px">👤</span><h3>Personal Information</h3></div>
       <div class="profile-field"><label>Full Name</label><input type="text" placeholder="Juan Dela Cruz" id="p-name" oninput="updateDisplayName()"></div>
+      <div class="profile-field"><label>Your Mobile Number</label><input type="tel" placeholder="09XX-XXX-XXXX" id="p-own-num"></div>
       <div class="profile-field"><label>Date of Birth</label><input type="date" id="p-dob"></div>
       <div class="profile-field"><label>Address</label><input type="text" placeholder="123 Street, Parañaque City" id="p-address"></div>
       <div class="profile-field"><label>Barangay</label>
@@ -478,21 +479,21 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   </div>
   <div class="feature-body">
     <div class="feature-hero">
-      <h2>📷 Photo with GPS Stamp</h2>
-      <p>Take a photo and it will be stamped with your coordinates in the corner — useful for documenting damage, injuries, or your exact location.</p>
-      <div class="gps-badge" style="align-self:flex-start"><span class="gps-dot" id="gps-dot-cam"></span><span id="gps-text-cam">Locating…</span></div>
-      <button class="btn-outline" style="margin-top:8px;padding:6px" onclick="setManualLocation()">📍 Set location manually</button>
+      <h2>📷 Photo with Location Stamp</h2>
+      <p>Take a photo and it will be stamped with your location, date/time, and your name & contact number — useful for documenting damage, injuries, or your exact location for responders.</p>
     </div>
+    <div class="profile-field"><label>Location</label><input type="text" placeholder="e.g. In front of Barangay Hall, near Waltermart" id="cam-location-desc"></div>
+    <div class="hint-box" id="cam-gps-note">GPS coordinates will also be added automatically if available.</div>
     <div class="camera-frame" id="camera-frame">
       <span style="color:#666;font-size:12px">No photo yet</span>
     </div>
     <input type="file" accept="image/*" capture="environment" id="camera-input" style="display:none" onchange="handleCameraPhoto(event)">
     <button class="btn-primary" onclick="document.getElementById('camera-input').click()">📷 TAKE PHOTO</button>
     <div class="action-row" id="camera-actions" style="display:none">
-      <button class="btn-outline" onclick="downloadGeotagPhoto()">⬇️ SAVE</button>
+      <button class="btn-outline" onclick="downloadGeotagPhoto()">⬇️ SAVE TO PHONE</button>
       <button class="btn-outline" onclick="shareGeotagPhoto()">📤 SHARE</button>
     </div>
-    <div class="hint-box">Tip: keep location services on so the coordinates are accurate. Coordinates are stamped using your last known GPS fix.</div>
+    <div class="hint-box">Tip: fill in the Location box before or after taking the photo — it gets stamped either way, since you can retake the stamp by tapping Take Photo again.</div>
   </div>
 </div>
 
@@ -563,7 +564,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
       <div class="section-title" style="margin:4px 0"><span class="section-line"></span><span>LATEST POSTS</span><span class="section-line"></span></div>
       <div style="background:white;border-radius:10px;overflow:hidden;border:1px solid #e0e0e0" id="alerts-feed"></div>
     </div>
-    <div class="hint-box">This shows the Page's public posts and requires an internet connection. Only pages that are public will load. Nothing loads until you enter a page and save.</div>
+    <div class="hint-box">This shows the Page's public posts and requires an internet connection. Only pages that are public will load. Nothing loads until you enter a page and save. If the "Open on Facebook" button doesn't do anything, use "Copy Link" and paste it into your browser app instead.</div>
   </div>
 </div>
 
@@ -578,22 +579,18 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   </div>
   <div class="feature-body">
     <div class="feature-hero">
-      <h2>🆘 Notify Your Local DRRMO</h2>
-      <p>Use this if you cannot reach an emergency hotline or your emergency contact. It builds a message with your details and location for you to send to your local DRRMO's Facebook Page.</p>
+      <h2>🆘 Report an Emergency</h2>
+      <p>Use this if you cannot reach an emergency hotline or your emergency contact. It builds a message with your details and location that you can copy and send however works on your phone — SMS, Messenger, or any app.</p>
     </div>
-    <div class="profile-field"><label>Your Local DRRMO Facebook Page</label><input type="text" placeholder="e.g. ParanaqueDRRMO" id="report-fb-page"></div>
     <div class="profile-field"><label>Who / What Number Was Unreachable</label><input type="text" placeholder="e.g. Barangay hotline, 911, my contact person" id="report-target"></div>
     <div class="profile-field"><label>Situation / What You Need</label><textarea placeholder="Briefly describe the emergency and what help you need" id="report-notes"></textarea></div>
     <button class="btn-primary" onclick="buildIncidentReport()">📝 BUILD REPORT</button>
     <div id="report-output-wrap" style="display:none">
       <div class="profile-field"><label>Message to Send</label><textarea id="report-output" readonly style="min-height:140px"></textarea></div>
-      <div class="action-row">
-        <button class="btn-outline" onclick="copyReportText()">📋 COPY TEXT</button>
-        <button class="btn-primary" onclick="shareReportText()">📤 SEND</button>
-      </div>
-      <button class="btn-outline" style="margin-top:8px" onclick="openMessengerForReport()">💬 OPEN MESSENGER TO DRRMO PAGE</button>
+      <button class="btn-outline" onclick="copyReportText()">📋 COPY TEXT</button>
+      <a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:8px" id="report-sms-link" href="#">📱 SEND VIA SMS</a>
     </div>
-    <div class="hint-box">"SEND" opens your phone's share menu so you can post it to Messenger, SMS, or another app addressed to the Page above. This app cannot post to Facebook automatically.</div>
+    <div class="hint-box">Tap "Copy Text" then paste the message into Messenger, Viber, or any app you use to reach your local DRRMO or barangay. "Send via SMS" opens your phone's messaging app directly with the report pre-filled.</div>
   </div>
 </div>
 
@@ -794,13 +791,13 @@ function applyPhoto(src){
   document.getElementById('photo-placeholder').style.display='none';
 }
 function saveProfile(){
-  ['p-name','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'].forEach(function(id){
+  ['p-name','p-own-num','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'].forEach(function(id){
     var el=document.getElementById(id);if(el)localStorage.setItem(id,el.value);
   });
   updateDisplayName();showToast('✓ Profile saved!');
 }
 function loadProfile(){
-  ['p-name','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'].forEach(function(id){
+  ['p-name','p-own-num','p-dob','p-address','p-barangay','p-blood','p-allergies','p-conditions','p-meds','p-ec-name','p-ec-rel','p-ec-num','p-brgy-name','p-brgy-num'].forEach(function(id){
     var val=localStorage.getItem(id);var el=document.getElementById(id);
     if(val&&el)el.value=val;
   });
@@ -887,18 +884,34 @@ function handleCameraPhoto(e){
       c.width=w;c.height=h;
       var ctx=c.getContext('2d');
       ctx.drawImage(img,0,0,w,h);
-      var label=lastPos?(lastPos.lat.toFixed(6)+', '+lastPos.lng.toFixed(6)):'GPS unavailable';
-      var stamp=new Date().toLocaleString();
-      ctx.font='bold '+Math.max(12,Math.round(w*0.028))+'px Arial';
-      var padX=10,padY=6,lineH=Math.round(w*0.034);
-      var textW=Math.max(ctx.measureText(label).width,ctx.measureText(stamp).width);
-      ctx.fillStyle='rgba(0,0,0,0.55)';
-      ctx.fillRect(w-textW-padX*2-8,h-lineH*2-padY*2-8,textW+padX*2+8,lineH*2+padY*2);
-      ctx.fillStyle='#FFD700';
+
+      var locText=(document.getElementById('cam-location-desc').value||'').trim();
+      var gpsText=lastPos?(lastPos.lat.toFixed(6)+', '+lastPos.lng.toFixed(6)):'';
+      var locationLine='Location: '+(locText||gpsText||'Not provided');
+      if(locText&&gpsText)locationLine+=' ('+gpsText+')';
+      var dateLine=new Date().toLocaleString();
+      var name=(localStorage.getItem('p-name')||'').trim();
+      var contact=(localStorage.getItem('p-own-num')||'').trim();
+      var nameLine=name||'(name not set in profile)';
+      var contactLine=contact||'(contact not set in profile)';
+      var lines=[locationLine,dateLine,nameLine,contactLine];
+
+      var fontSize=Math.max(12,Math.round(w*0.026));
+      ctx.font='bold '+fontSize+'px Arial';
+      var padX=10,padY=8,lineH=Math.round(fontSize*1.35);
+      var textW=0;
+      lines.forEach(function(l){textW=Math.max(textW,ctx.measureText(l).width);});
+      var boxH=lineH*lines.length+padY*2;
+      var boxW=Math.min(w-16,textW+padX*2+8);
+      ctx.fillStyle='rgba(0,0,0,0.6)';
+      ctx.fillRect(w-boxW-8,h-boxH-8,boxW,boxH);
       ctx.textAlign='right';
-      ctx.fillText(label,w-padX-8,h-lineH-padY-2);
-      ctx.fillStyle='white';
-      ctx.fillText(stamp,w-padX-8,h-padY-6);
+      lines.forEach(function(l,i){
+        ctx.fillStyle=(i===0)?'#FFD700':'white';
+        ctx.font=(i===0?'bold ':'')+fontSize+'px Arial';
+        ctx.fillText(l,w-padX-8,h-8-padY-(lines.length-1-i)*lineH,boxW-padX);
+      });
+
       var frame=document.getElementById('camera-frame');
       frame.innerHTML='';frame.appendChild(c);
       geotagCanvas=c;
@@ -908,30 +921,24 @@ function handleCameraPhoto(e){
 }
 function downloadGeotagPhoto(){
   if(!geotagCanvas)return;
-  // Many embedded app WebViews (incl. Median-wrapped APKs) don't support the
-  // anchor "download" attribute for saving to the gallery/Downloads folder.
-  // Prefer the native share sheet when available since it reliably lets the
-  // user pick "Save to Files/Gallery" — fall back to the browser download link.
-  if(navigator.share&&navigator.canShare){
-    geotagCanvas.toBlob(function(blob){
-      var file=new File([blob],'PER-geotag-'+Date.now()+'.jpg',{type:'image/jpeg'});
-      if(navigator.canShare({files:[file]})){
-        navigator.share({files:[file],title:'Geotagged Photo'}).catch(function(){});
-        showToast('Choose "Save to Files" or "Save Image" in the share menu');
-        return;
-      }
-      triggerBrowserDownload();
-    },'image/jpeg',0.85);
-  }else{
-    triggerBrowserDownload();
-  }
-}
-function triggerBrowserDownload(){
-  var a=document.createElement('a');
-  a.download='PER-geotag-'+Date.now()+'.jpg';
-  a.href=geotagCanvas.toDataURL('image/jpeg',0.85);
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  showToast('If the photo did not appear in your gallery, use Share instead','#D44000');
+  // Data-URI downloads frequently fail silently inside wrapped app WebViews
+  // (incl. Median APKs) because there's no real download handler for them.
+  // A Blob object URL clicked via a real <a download> is recognized by the
+  // WebView's default download listener in most app-wrapper frameworks, so
+  // try that first; fall back to sharing if it's not available at all.
+  geotagCanvas.toBlob(function(blob){
+    try{
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.download='PER-geotag-'+Date.now()+'.jpg';
+      a.href=url;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(function(){URL.revokeObjectURL(url);},4000);
+      showToast('Saving photo… check your gallery or Downloads folder');
+    }catch(err){
+      shareGeotagPhoto();
+    }
+  },'image/jpeg',0.9);
 }
 function shareGeotagPhoto(){
   if(!geotagCanvas)return;
@@ -939,7 +946,9 @@ function shareGeotagPhoto(){
     var file=new File([blob],'PER-geotag.jpg',{type:'image/jpeg'});
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
       navigator.share({files:[file],title:'Geotagged Photo'}).catch(function(){});
-    }else{downloadGeotagPhoto();}
+    }else{
+      showToast('Sharing is not available on this device','#D44000');
+    }
   },'image/jpeg',0.85);
 }
 
@@ -1048,40 +1057,50 @@ function loadAlertsPage(){
 function renderAlertsFeed(page){
   var cleanPage=page.replace(/^https?:\/\/(www\.)?facebook\.com\//i,'').replace(/^@/,'').replace(/\/$/,'');
   var url='https://www.facebook.com/'+cleanPage;
-  // Facebook's embeddable Page Plugin frequently fails to load inside
-  // wrapped app WebViews (blocked iframes/cookies), so lead with a direct
-  // link that reliably works, and still attempt the embed as a bonus.
+  // Facebook's embeddable Page Plugin, and target=_blank links in general,
+  // frequently don't work inside wrapped app WebViews (no new-window
+  // handler). Give a plain same-window link plus a guaranteed copy-link
+  // fallback so the person can always get to the page one way or another.
   var html='<div style="padding:14px">'+
-    '<div style="font-size:12px;color:#666;margin-bottom:10px">Tap below to view the latest posts from this Page. If the preview below does not load, this link will always work.</div>'+
-    '<a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:12px" target="_blank" href="'+url+'">📘 OPEN '+cleanPage+' ON FACEBOOK</a>'+
+    '<div style="font-size:12px;color:#666;margin-bottom:10px">Tap below to view the latest posts from this Page.</div>'+
+    '<a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+url+'">📘 OPEN '+cleanPage+' ON FACEBOOK</a>'+
+    '<button class="btn-outline" style="margin-bottom:12px" onclick="copyAlertsLink()">📋 COPY LINK</button>'+
     '<div id="alerts-embed-attempt"></div>'+
     '</div>';
   document.getElementById('alerts-feed').innerHTML=html;
   document.getElementById('alerts-feed-wrap').style.display='block';
+  window.__alertsUrl=url;
   var iframe='<iframe src="https://www.facebook.com/plugins/page.php?href='+encodeURIComponent(url)+'&tabs=timeline&width=340&height=420&small_header=true&hide_cover=false" width="100%" height="420" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="encrypted-media"></iframe>';
   document.getElementById('alerts-embed-attempt').innerHTML=iframe;
+}
+function copyAlertsLink(){
+  var ta=document.createElement('textarea');
+  ta.value=window.__alertsUrl||'';ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,999999);
+  try{document.execCommand('copy');showToast('✓ Link copied — paste it into your browser app');}
+  catch(e){showToast('⚠️ Could not copy — long-press the button link instead','#D44000');}
+  document.body.removeChild(ta);
 }
 
 // ===== INCIDENT REPORT (feature 6) =====
 function buildIncidentReport(){
-  var page=document.getElementById('report-fb-page').value.trim();
-  if(page)localStorage.setItem('report-fb-page',page);
   var target=document.getElementById('report-target').value.trim();
   var notes=document.getElementById('report-notes').value.trim();
   var name=localStorage.getItem('p-name')||'(name not set in profile)';
+  var ownNum=localStorage.getItem('p-own-num')||'';
   var addr=localStorage.getItem('p-address')||'(address not set in profile)';
   var brgy=localStorage.getItem('p-brgy-name')||'';
   var loc=lastPos?(lastPos.lat.toFixed(6)+', '+lastPos.lng.toFixed(6)+' (https://www.google.com/maps?q='+lastPos.lat+','+lastPos.lng+')'):'GPS not available';
   var msg='🆘 EMERGENCY REPORT — via Parañaque Emergency Ready app\n\n'+
-    'Reporting person: '+name+'\n'+
+    'Reporting person: '+name+(ownNum?(' · '+ownNum):'')+'\n'+
     'Address: '+addr+(brgy?(', Brgy. '+brgy):'')+'\n'+
     'Current location: '+loc+'\n\n'+
     'Could not reach: '+(target||'(not specified)')+'\n\n'+
     'Situation:\n'+(notes||'(not specified)')+'\n\n'+
-    (page?('Sending to: facebook.com/'+page.replace(/^@/,'')+'\n'):'')+
     '— Please send help or advise next steps. Thank you.';
   document.getElementById('report-output').value=msg;
   document.getElementById('report-output-wrap').style.display='block';
+  document.getElementById('report-sms-link').href='sms:?body='+encodeURIComponent(msg);
 }
 function copyReportText(){
   var t=document.getElementById('report-output');
@@ -1089,36 +1108,10 @@ function copyReportText(){
   try{document.execCommand('copy');showToast('✓ Copied to clipboard!');}
   catch(e){navigator.clipboard&&navigator.clipboard.writeText(t.value);showToast('✓ Copied!');}
 }
-function shareReportText(){
-  var text=document.getElementById('report-output').value;
-  var page=(localStorage.getItem('report-fb-page')||'').replace(/^@/,'');
-  if(navigator.share){
-    try{
-      navigator.share({title:'Emergency Report',text:text}).catch(function(){
-        copyReportText();showToast('Share cancelled/unsupported — copied instead. Paste it into Messenger.','#D44000');
-      });
-    }catch(e){
-      copyReportText();showToast('Share not supported here — copied instead. Paste it into Messenger.','#D44000');
-    }
-  }else{
-    copyReportText();showToast('Copied — paste it into Messenger/SMS','#D44000');
-  }
-}
-function openMessengerForReport(){
-  var page=(document.getElementById('report-fb-page').value||localStorage.getItem('report-fb-page')||'').replace(/^https?:\/\/(www\.)?(facebook\.com|m\.me)\//i,'').replace(/^@/,'').replace(/\/$/,'');
-  if(!page){showToast('⚠️ Enter the DRRMO Facebook Page first','#D44000');return;}
-  copyReportText();
-  window.open('https://m.me/'+page,'_blank');
-  showToast('Report copied — paste it into the Messenger chat that opens');
-}
-function loadReportPage(){
-  var page=localStorage.getItem('report-fb-page');
-  if(page)document.getElementById('report-fb-page').value=page;
-}
 
 // INIT
 window.addEventListener('load',function(){
-  loadProfile();loadGobag();loadFamilyPlan();loadAlertsPage();loadReportPage();renderHospitalList();
+  loadProfile();loadGobag();loadFamilyPlan();loadAlertsPage();renderHospitalList();
   initGPS();
   // Auto-advance splash after 3 seconds if user doesn't tap
   setTimeout(function(){
