@@ -571,45 +571,35 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   <div class="feature-body">
     <div class="feature-hero">
       <h2>📢 Official Emergency Sources</h2>
-      <p>Open trusted national and local civil defense channels for the latest alerts, weather warnings, and advisories.</p>
+      <p>Tap a button to open the official Facebook page for the latest alerts and advisories.</p>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🏛️ Office of Civil Defense (OCD)</div>
       <div class="hospital-addr" style="margin-bottom:8px">National civil defense & disaster coordination</div>
-      <div class="action-row">
-        <button class="btn-primary" style="flex:1" onclick="openExternal('https://ocd.gov.ph/')">🌐 WEBSITE</button>
-        <button class="btn-outline" style="flex:1" onclick="openExternal('https://www.facebook.com/civildefensePH')">📘 FB</button>
-      </div>
-      <button class="btn-outline" style="margin-top:8px" onclick="openExternal('https://x.com/civildefensePH')">𝕏 OCD on X / Twitter</button>
+      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/civildefensePH')">📘 OPEN OCD FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🌧️ PAGASA</div>
       <div class="hospital-addr" style="margin-bottom:8px">Weather, tropical cyclone & rainfall warnings</div>
-      <div class="action-row">
-        <button class="btn-primary" style="flex:1" onclick="openExternal('https://www.pagasa.dost.gov.ph/')">🌐 WEBSITE</button>
-        <button class="btn-outline" style="flex:1" onclick="openExternal('https://www.facebook.com/PAGASA.DOST.GOV.PH')">📘 FB</button>
-      </div>
+      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/PAGASA.DOST.GOV.PH')">📘 OPEN PAGASA FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
       <div class="hospital-name">🛡️ NDRRMC</div>
       <div class="hospital-addr" style="margin-bottom:8px">National Disaster Risk Reduction & Management Council</div>
-      <div class="action-row">
-        <button class="btn-primary" style="flex:1" onclick="openExternal('https://ndrrmc.gov.ph/')">🌐 WEBSITE</button>
-        <button class="btn-outline" style="flex:1" onclick="openExternal('https://www.facebook.com/NDRRMC')">📘 FB</button>
-      </div>
+      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/NDRRMC')">📘 OPEN NDRRMC FACEBOOK</button>
     </div>
 
     <div class="card" style="margin-bottom:8px">
-      <div class="hospital-name">🏙️ Parañaque City</div>
-      <div class="hospital-addr" style="margin-bottom:8px">Local government & city updates</div>
-      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/ParanaqueCityGov')">📘 Parañaque City Gov FB</button>
+      <div class="hospital-name">🏙️ Parañaque City Information Office</div>
+      <div class="hospital-addr" style="margin-bottom:8px">Official local government updates & advisories</div>
+      <button class="btn-primary" onclick="openExternal('https://www.facebook.com/pioparanaque')">📘 OPEN PARAÑAQUE PIO FACEBOOK</button>
     </div>
 
     <div class="hint-box">
-      These buttons open the official pages outside the app (browser or Facebook/X app). This is the most reliable way to receive live alerts inside a wrapped app.
+      These open the official Facebook pages outside the app. This is the most reliable way to get live alerts.
     </div>
   </div>
 </div>
@@ -1066,83 +1056,48 @@ function handleCameraPhoto(e){
     };img.src=ev.target.result;
   };r.readAsDataURL(file);
 }
-function forceDownload(blob){
-  try{
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.href=url;
-    a.download='PER-geotag-'+Date.now()+'.jpg';
-    a.style.display='none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
-    showToast('✓ Check Downloads or Gallery');
-    return true;
-  }catch(e){return false;}
-}
-function forceDownloadDataUrl(dataUrl){
-  try{
-    var a=document.createElement('a');
-    a.href=dataUrl;
-    a.download='PER-geotag-'+Date.now()+'.jpg';
-    a.style.display='none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){document.body.removeChild(a);},2000);
-    showToast('✓ Check Downloads or Gallery');
-    return true;
-  }catch(e){return false;}
-}
-function showLongPressFallback(dataUrl){
-  // Ultimate fallback for Median WebView: show the stamped image full-screen
-  // so the user can long-press → Save / Download image
+function showShareFallback(dataUrl){
   var overlay=document.createElement('div');
   overlay.id='geotag-fallback-overlay';
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
   overlay.innerHTML=
-    '<div style="color:#FFD700;font-size:14px;font-weight:700;text-align:center;margin-bottom:12px;line-height:1.4">Long-press the photo below → choose<br>“Download image” or “Save image”</div>'+
-    '<img src="'+dataUrl+'" style="max-width:100%;max-height:70vh;border-radius:8px;border:2px solid #FFD700">'+
+    '<div style="color:#FFD700;font-size:15px;font-weight:800;text-align:center;margin-bottom:8px;line-height:1.4">Could not open the share menu.</div>'+
+    '<div style="color:#fff;font-size:13px;text-align:center;margin-bottom:6px;line-height:1.5">Take a <b>screenshot</b> of this stamped photo,<br>then open <b>Messenger</b> and send the screenshot.</div>'+
+    '<div style="color:#aaa;font-size:11px;text-align:center;margin-bottom:12px">Samsung: press Side key + Volume Down together</div>'+
+    '<img src="'+dataUrl+'" style="max-width:100%;max-height:58vh;border-radius:8px;border:2px solid #FFD700">'+
     '<button onclick="document.getElementById(\'geotag-fallback-overlay\').remove()" style="margin-top:16px;background:#8B0000;color:white;border:none;border-radius:8px;padding:12px 28px;font-size:14px;font-weight:700">CLOSE</button>';
   document.body.appendChild(overlay);
-  showToast('Long-press the photo to save it');
+  showToast('Screenshot this photo, then send via Messenger');
 }
-function downloadGeotagPhoto(){
-  if(!geotagCanvas)return;
-  showToast('Preparing stamped photo…');
-  // Prefer dataURL path — more reliable than blob inside many WebViews
-  var dataUrl=geotagCanvas.toDataURL('image/jpeg',0.85);
-  // 1) Try classic download via data URL
-  if(forceDownloadDataUrl(dataUrl))return;
-  // 2) Try blob + share (without strict canShare)
-  geotagCanvas.toBlob(function(blob){
-    var file=new File([blob],'PER-geotag-'+Date.now()+'.jpg',{type:'image/jpeg'});
-    if(navigator.share){
-      navigator.share({files:[file],title:'Geotagged Photo',text:'Stamped emergency photo from PER'})
-        .then(function(){showToast('Choose “Save image” or “Save to Files”');})
-        .catch(function(){
-          if(!forceDownload(blob))showLongPressFallback(dataUrl);
-        });
-    }else{
-      if(!forceDownload(blob))showLongPressFallback(dataUrl);
-    }
-  },'image/jpeg',0.85);
-}
+
 function shareGeotagPhoto(){
   if(!geotagCanvas)return;
-  showToast('Preparing photo…');
+  showToast('Preparing photo for sharing…');
   geotagCanvas.toBlob(function(blob){
-    var file=new File([blob],'PER-geotag.jpg',{type:'image/jpeg'});
+    if(!blob){
+      showShareFallback(geotagCanvas.toDataURL('image/jpeg',0.85));
+      return;
+    }
+    var file=new File([blob],'PER-geotag-'+Date.now()+'.jpg',{type:'image/jpeg'});
+
+    // Try the system share sheet (user can pick Messenger)
     if(navigator.share){
-      navigator.share({files:[file],title:'Geotagged Photo'})
-        .then(function(){showToast('Shared');})
-        .catch(function(){
-          // Share failed — fall back to long-press save
-          var dataUrl=geotagCanvas.toDataURL('image/jpeg',0.85);
-          showLongPressFallback(dataUrl);
-        });
+      navigator.share({
+        files: [file],
+        title: 'Geotagged Photo',
+        text: 'Stamped emergency photo from Parañaque Emergency Ready'
+      }).then(function(){
+        showToast('✓ Shared');
+      }).catch(function(err){
+        // User cancelled OR share not supported for files → show fallback
+        if(err && err.name === 'AbortError'){
+          showToast('Share cancelled');
+        }else{
+          showShareFallback(geotagCanvas.toDataURL('image/jpeg',0.85));
+        }
+      });
     }else{
-      var dataUrl=geotagCanvas.toDataURL('image/jpeg',0.85);
-      showLongPressFallback(dataUrl);
+      showShareFallback(geotagCanvas.toDataURL('image/jpeg',0.85));
     }
   },'image/jpeg',0.85);
 }
