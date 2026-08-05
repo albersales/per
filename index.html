@@ -139,6 +139,30 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .modal-input{width:100%;border:2px solid #8B0000;border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:10px;outline:none;font-family:Arial,sans-serif}
 .modal-save{background:#8B0000;color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
 .modal-cancel{background:none;border:none;color:#888;font-size:13px;cursor:pointer;width:100%;padding:10px;margin-top:4px}
+.gps-badge{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:0.5px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.15);color:#FFD700}
+.gps-dot{width:6px;height:6px;border-radius:50%;background:#888}
+.gps-dot.locked{background:#3ddc63}
+.gps-dot.searching{background:#FFD700;animation:pulse 1s infinite}
+.feature-body{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1}
+.feature-hero{background:#1a1a2e;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.feature-hero h2{color:#FFD700;font-size:14px;font-weight:900}
+.feature-hero p{color:rgba(255,255,255,0.75);font-size:11px;line-height:1.4}
+.btn-primary{background:#8B0000;color:white;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;width:100%}
+.btn-outline{background:white;color:#8B0000;border:2px solid #8B0000;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;width:100%}
+.action-row{display:flex;gap:8px}
+.action-row>*{flex:1}
+.card{background:white;border-radius:10px;padding:12px 14px;border:1px solid #e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.card-row{display:flex;align-items:center;gap:10px}
+.hospital-name{font-size:13px;font-weight:700;color:#1a1a2e}
+.hospital-dist{font-size:10px;color:#8B0000;font-weight:700;background:#fbe9e9;padding:2px 7px;border-radius:999px}
+.hospital-addr{font-size:11px;color:#666;margin-top:2px}
+.family-member{background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;padding:10px;margin-bottom:8px;position:relative}
+.family-member .remove-x{position:absolute;top:6px;right:8px;background:none;border:none;color:#aaa;font-size:16px;cursor:pointer}
+.profile-field textarea{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;color:#333;background:#fafafa;outline:none;font-family:Arial,sans-serif;resize:vertical;min-height:70px}
+.add-btn{background:none;border:2px dashed #8B0000;color:#8B0000;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%}
+.camera-frame{background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:200px}
+.camera-frame img,.camera-frame canvas{width:100%;display:block}
+.hint-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 12px;font-size:11px;color:#7a5c00;line-height:1.4}
 .num-pick-btn{display:flex;align-items:center;gap:12px;width:100%;background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;text-decoration:none}
 .num-pick-label{font-size:11px;color:#888;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .num-pick-num{font-size:15px;color:#1a1a2e;font-weight:700;margin-top:2px}
@@ -150,7 +174,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 <body>
 <div class="app">
 <div class="statusbar">
-  <span id="clock">9:41</span><span>PER v2.0</span><span>📶 🔋</span>
+  <span id="clock">9:41</span><span>PER v2.1</span><span>📶 🔋</span>
 </div>
 
 <!-- ===== SPLASH SCREEN ===== -->
@@ -181,6 +205,9 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     <div class="pulse-dot"></div>
     <span>EMERGENCY HOTLINES</span>
     <div class="pulse-dot"></div>
+  </div>
+  <div style="display:flex;justify-content:center;padding:6px 0 0;background:#1a1a2e">
+    <div class="gps-badge" id="gps-badge"><span class="gps-dot searching" id="gps-dot"></span><span id="gps-text">LOCATING GPS…</span></div>
   </div>
   <div class="contacts-list">
     <a class="contact-btn btn-911" href="tel:911">
@@ -401,6 +428,172 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   </div>
 </div>
 
+<!-- ===== MORE HUB ===== -->
+<div class="screen" id="screen-more">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('home')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>MORE TOOLS</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="menu-items" style="padding-top:14px">
+    <div class="menu-item" onclick="showScreen('camera')">
+      <div class="menu-item-icon">📷</div>
+      <div class="menu-item-text"><h3>GEOTAG CAMERA</h3><p>Snap a photo stamped with GPS coordinates</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="showScreen('family')">
+      <div class="menu-item-icon" style="background:#1a1a2e">👪</div>
+      <div class="menu-item-text"><h3>FAMILY EMERGENCY PLAN</h3><p>Meeting points, contacts & member details</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="showScreen('hospitals')">
+      <div class="menu-item-icon">🏥</div>
+      <div class="menu-item-text"><h3>NEAREST PRIVATE HOSPITALS</h3><p>Sorted by distance from your location</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="showScreen('alerts')">
+      <div class="menu-item-icon" style="background:#1a1a2e">📢</div>
+      <div class="menu-item-text"><h3>ALERTS & ANNOUNCEMENTS</h3><p>Follow your city/town's official Facebook Page</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="showScreen('report')">
+      <div class="menu-item-icon">🆘</div>
+      <div class="menu-item-text"><h3>REPORT UNREACHABLE CONTACT</h3><p>Send an incident report to your local DRRMO</p></div>
+      <span class="menu-item-arrow">›</span>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+</div>
+
+<!-- ===== GEOTAG CAMERA ===== -->
+<div class="screen" id="screen-camera">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>GEOTAG CAMERA</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="feature-body">
+    <div class="feature-hero">
+      <h2>📷 Photo with GPS Stamp</h2>
+      <p>Take a photo and it will be stamped with your coordinates in the corner — useful for documenting damage, injuries, or your exact location.</p>
+      <div class="gps-badge" style="align-self:flex-start"><span class="gps-dot" id="gps-dot-cam"></span><span id="gps-text-cam">Locating…</span></div>
+    </div>
+    <div class="camera-frame" id="camera-frame">
+      <span style="color:#666;font-size:12px">No photo yet</span>
+    </div>
+    <input type="file" accept="image/*" capture="environment" id="camera-input" style="display:none" onchange="handleCameraPhoto(event)">
+    <button class="btn-primary" onclick="document.getElementById('camera-input').click()">📷 TAKE PHOTO</button>
+    <div class="action-row" id="camera-actions" style="display:none">
+      <button class="btn-outline" onclick="downloadGeotagPhoto()">⬇️ SAVE</button>
+      <button class="btn-outline" onclick="shareGeotagPhoto()">📤 SHARE</button>
+    </div>
+    <div class="hint-box">Tip: keep location services on so the coordinates are accurate. Coordinates are stamped using your last known GPS fix.</div>
+  </div>
+</div>
+
+<!-- ===== FAMILY EMERGENCY PLAN ===== -->
+<div class="screen" id="screen-family">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>FAMILY EMERGENCY PLAN</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="feature-body">
+    <div class="feature-hero">
+      <h2>👪 Reunification Plan</h2>
+      <p>Where your family will meet and who to contact if you're separated during an emergency.</p>
+    </div>
+    <div class="profile-field"><label>Primary Meeting Point</label><input type="text" placeholder="e.g. Barangay covered court" id="f-meet1"></div>
+    <div class="profile-field"><label>Secondary Meeting Point (if area is unsafe)</label><input type="text" placeholder="e.g. Relative's house, other barangay" id="f-meet2"></div>
+    <div class="profile-field"><label>Out-of-Town Contact (Name)</label><input type="text" placeholder="Relative outside Metro Manila" id="f-outname"></div>
+    <div class="profile-field"><label>Out-of-Town Contact Number</label><input type="tel" placeholder="09XX-XXX-XXXX" id="f-outnum"></div>
+    <div class="section-title" style="margin:2px 0"><span class="section-line"></span><span>FAMILY MEMBERS</span><span class="section-line"></span></div>
+    <div id="family-members-list"></div>
+    <button class="add-btn" onclick="addFamilyMember()">➕ ADD FAMILY MEMBER</button>
+    <div class="profile-field"><label>Special Instructions / Notes</label><textarea placeholder="e.g. Grandma needs wheelchair assistance, pet carrier location, evacuation route" id="f-notes"></textarea></div>
+    <button class="btn-primary" onclick="saveFamilyPlan()">💾 SAVE PLAN</button>
+  </div>
+</div>
+
+<!-- ===== HOSPITAL LOCATOR ===== -->
+<div class="screen" id="screen-hospitals">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>NEAREST HOSPITALS</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="feature-body">
+    <div class="feature-hero">
+      <h2>🏥 Private Hospitals</h2>
+      <p>Sorted by distance from your current location. Distances are approximate straight-line (as-the-crow-flies).</p>
+      <div class="gps-badge" style="align-self:flex-start"><span class="gps-dot" id="gps-dot-hosp"></span><span id="gps-text-hosp">Locating…</span></div>
+    </div>
+    <div id="hospital-list"></div>
+    <div class="hint-box">List covers major private hospitals in and near Parañaque City. No internet connection is required to view this list — only for the "Directions" link.</div>
+  </div>
+</div>
+
+<!-- ===== ALERTS & ANNOUNCEMENTS ===== -->
+<div class="screen" id="screen-alerts">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>ALERTS & ANNOUNCEMENTS</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="feature-body">
+    <div class="feature-hero">
+      <h2>📢 Your City/Town's Page</h2>
+      <p>Enter the Facebook Page username of your city, town, or barangay's official account (e.g. ParanaqueCityGov) to follow their posts here.</p>
+    </div>
+    <div class="profile-field"><label>Facebook Page Username or URL</label><input type="text" placeholder="e.g. ParanaqueCityGov" id="alerts-fb-page"></div>
+    <button class="btn-primary" onclick="saveAlertsPage()">💾 SAVE & LOAD FEED</button>
+    <div id="alerts-feed-wrap" style="display:none">
+      <div class="section-title" style="margin:4px 0"><span class="section-line"></span><span>LATEST POSTS</span><span class="section-line"></span></div>
+      <div style="background:white;border-radius:10px;overflow:hidden;border:1px solid #e0e0e0" id="alerts-feed"></div>
+    </div>
+    <div class="hint-box">This shows the Page's public posts and requires an internet connection. Only pages that are public will load. Nothing loads until you enter a page and save.</div>
+  </div>
+</div>
+
+<!-- ===== INCIDENT REPORT ===== -->
+<div class="screen" id="screen-report">
+  <div class="header">
+    <div class="header-top">
+      <button onclick="showScreen('more')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px;line-height:1">‹</button>
+      <div class="header-title"><h1>REPORT UNREACHABLE CONTACT</h1></div>
+      <div style="width:32px"></div>
+    </div>
+  </div>
+  <div class="feature-body">
+    <div class="feature-hero">
+      <h2>🆘 Notify Your Local DRRMO</h2>
+      <p>Use this if you cannot reach an emergency hotline or your emergency contact. It builds a message with your details and location for you to send to your local DRRMO's Facebook Page.</p>
+    </div>
+    <div class="profile-field"><label>Your Local DRRMO Facebook Page</label><input type="text" placeholder="e.g. ParanaqueDRRMO" id="report-fb-page"></div>
+    <div class="profile-field"><label>Who / What Number Was Unreachable</label><input type="text" placeholder="e.g. Barangay hotline, 911, my contact person" id="report-target"></div>
+    <div class="profile-field"><label>Situation / What You Need</label><textarea placeholder="Briefly describe the emergency and what help you need" id="report-notes"></textarea></div>
+    <button class="btn-primary" onclick="buildIncidentReport()">📝 BUILD REPORT</button>
+    <div id="report-output-wrap" style="display:none">
+      <div class="profile-field"><label>Message to Send</label><textarea id="report-output" readonly style="min-height:140px"></textarea></div>
+      <div class="action-row">
+        <button class="btn-outline" onclick="copyReportText()">📋 COPY TEXT</button>
+        <button class="btn-primary" onclick="shareReportText()">📤 SEND</button>
+      </div>
+    </div>
+    <div class="hint-box">"SEND" opens your phone's share menu so you can post it to Messenger, SMS, or another app addressed to the Page above. This app cannot post to Facebook automatically.</div>
+  </div>
+</div>
+
 <!-- ===== ABOUT ===== -->
 <div class="screen" id="screen-about">
   <div class="header">
@@ -463,6 +656,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
   <button class="nav-item active" id="nav-home" onclick="showScreen('home')"><span>🏠</span><span class="nav-label">HOME</span></button>
   <button class="nav-item" id="nav-profile" onclick="showScreen('profile')"><span>👤</span><span class="nav-label">PROFILE</span></button>
   <button class="nav-item" id="nav-gobag" onclick="showScreen('gobag')"><span>🎒</span><span class="nav-label">GO BAG</span></button>
+  <button class="nav-item" id="nav-more" onclick="showScreen('more')"><span>☰</span><span class="nav-label">MORE</span></button>
   <button class="nav-item" id="nav-about" onclick="showScreen('about')"><span>ℹ️</span><span class="nav-label">ABOUT</span></button>
 </div>
 
@@ -640,9 +834,227 @@ function loadGobag(){
   }catch(e){}
 }
 
+// ===== GPS (feature 4: auto GPS on app open) =====
+var lastPos=null;
+function setGpsUI(state,text){
+  ['gps-dot','gps-dot-cam','gps-dot-hosp'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.className='gps-dot '+state;
+  });
+  ['gps-text','gps-text-cam','gps-text-hosp'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.textContent=text;
+  });
+}
+function initGPS(){
+  if(!navigator.geolocation){setGpsUI('','GPS not supported');return;}
+  setGpsUI('searching','LOCATING GPS…');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    lastPos={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    setGpsUI('locked','GPS LOCKED · '+lastPos.lat.toFixed(4)+', '+lastPos.lng.toFixed(4));
+    renderHospitalList();
+  },function(err){
+    setGpsUI('','GPS UNAVAILABLE (tap to retry)');
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+}
+document.getElementById('gps-badge').addEventListener('click',initGPS);
+
+// ===== GEOTAG CAMERA (feature 1) =====
+var geotagCanvas=null;
+function handleCameraPhoto(e){
+  var file=e.target.files[0];if(!file)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement('canvas');
+      var MAX=1280,w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      c.width=w;c.height=h;
+      var ctx=c.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      var label=lastPos?(lastPos.lat.toFixed(6)+', '+lastPos.lng.toFixed(6)):'GPS unavailable';
+      var stamp=new Date().toLocaleString();
+      ctx.font='bold '+Math.max(12,Math.round(w*0.028))+'px Arial';
+      var padX=10,padY=6,lineH=Math.round(w*0.034);
+      var textW=Math.max(ctx.measureText(label).width,ctx.measureText(stamp).width);
+      ctx.fillStyle='rgba(0,0,0,0.55)';
+      ctx.fillRect(w-textW-padX*2-8,h-lineH*2-padY*2-8,textW+padX*2+8,lineH*2+padY*2);
+      ctx.fillStyle='#FFD700';
+      ctx.textAlign='right';
+      ctx.fillText(label,w-padX-8,h-lineH-padY-2);
+      ctx.fillStyle='white';
+      ctx.fillText(stamp,w-padX-8,h-padY-6);
+      var frame=document.getElementById('camera-frame');
+      frame.innerHTML='';frame.appendChild(c);
+      geotagCanvas=c;
+      document.getElementById('camera-actions').style.display='flex';
+    };img.src=ev.target.result;
+  };r.readAsDataURL(file);
+}
+function downloadGeotagPhoto(){
+  if(!geotagCanvas)return;
+  var a=document.createElement('a');
+  a.download='PER-geotag-'+Date.now()+'.jpg';
+  a.href=geotagCanvas.toDataURL('image/jpeg',0.85);
+  a.click();
+  showToast('✓ Photo saved!');
+}
+function shareGeotagPhoto(){
+  if(!geotagCanvas)return;
+  geotagCanvas.toBlob(function(blob){
+    var file=new File([blob],'PER-geotag.jpg',{type:'image/jpeg'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'Geotagged Photo'}).catch(function(){});
+    }else{downloadGeotagPhoto();}
+  },'image/jpeg',0.85);
+}
+
+// ===== FAMILY EMERGENCY PLAN (feature 2) =====
+var familyMemberCount=0;
+function addFamilyMember(prefill){
+  familyMemberCount++;
+  var id=familyMemberCount;
+  var div=document.createElement('div');
+  div.className='family-member';div.id='fam-'+id;
+  div.innerHTML='<button class="remove-x" onclick="removeFamilyMember('+id+')">✕</button>'+
+    '<div class="profile-field"><label>Name</label><input type="text" id="fam-name-'+id+'"></div>'+
+    '<div class="profile-field"><label>Age</label><input type="number" id="fam-age-'+id+'"></div>'+
+    '<div class="profile-field"><label>Special Needs (medical, mobility, etc.)</label><input type="text" id="fam-needs-'+id+'"></div>';
+  document.getElementById('family-members-list').appendChild(div);
+  if(prefill){
+    document.getElementById('fam-name-'+id).value=prefill.name||'';
+    document.getElementById('fam-age-'+id).value=prefill.age||'';
+    document.getElementById('fam-needs-'+id).value=prefill.needs||'';
+  }
+}
+function removeFamilyMember(id){
+  var el=document.getElementById('fam-'+id);if(el)el.remove();
+}
+function saveFamilyPlan(){
+  var members=[];
+  document.querySelectorAll('.family-member').forEach(function(div){
+    var id=div.id.split('-')[1];
+    members.push({
+      name:document.getElementById('fam-name-'+id).value,
+      age:document.getElementById('fam-age-'+id).value,
+      needs:document.getElementById('fam-needs-'+id).value
+    });
+  });
+  var plan={
+    meet1:document.getElementById('f-meet1').value,
+    meet2:document.getElementById('f-meet2').value,
+    outname:document.getElementById('f-outname').value,
+    outnum:document.getElementById('f-outnum').value,
+    notes:document.getElementById('f-notes').value,
+    members:members
+  };
+  localStorage.setItem('family-plan',JSON.stringify(plan));
+  showToast('✓ Family plan saved!');
+}
+function loadFamilyPlan(){
+  try{
+    var plan=JSON.parse(localStorage.getItem('family-plan')||'null');
+    if(!plan)return;
+    document.getElementById('f-meet1').value=plan.meet1||'';
+    document.getElementById('f-meet2').value=plan.meet2||'';
+    document.getElementById('f-outname').value=plan.outname||'';
+    document.getElementById('f-outnum').value=plan.outnum||'';
+    document.getElementById('f-notes').value=plan.notes||'';
+    (plan.members||[]).forEach(function(m){addFamilyMember(m);});
+  }catch(e){}
+}
+
+// ===== NEAREST PRIVATE HOSPITAL LOCATOR (feature 3) =====
+// NOTE: coordinates are approximate — verify/adjust before relying on them for navigation.
+var HOSPITALS=[
+  {name:"Parañaque Doctors' Hospital",addr:'175 Doña Soledad Ave, Better Living, Don Bosco, Parañaque',phone:'0287760644',lat:14.4795,lng:121.0173},
+  {name:'Olivarez General Hospital',addr:'Dr. A. Santos Ave (Sucat Rd), San Dionisio, Parañaque',phone:'0288421644',lat:14.4855,lng:120.9930},
+  {name:'Medical Center Parañaque',addr:'Dr. A. Santos Ave, Parañaque',phone:'',lat:14.4795,lng:120.9975},
+  {name:'Our Lady of Peace Hospital',addr:'Parañaque, Metro Manila',phone:'',lat:14.488333,lng:120.983694}
+];
+function haversine(lat1,lon1,lat2,lon2){
+  var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
+  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function renderHospitalList(){
+  var list=document.getElementById('hospital-list');if(!list)return;
+  var items=HOSPITALS.map(function(hpt){
+    var dist=lastPos?haversine(lastPos.lat,lastPos.lng,hpt.lat,hpt.lng):null;
+    return Object.assign({},hpt,{dist:dist});
+  });
+  if(lastPos)items.sort(function(a,b){return a.dist-b.dist;});
+  list.innerHTML=items.map(function(h){
+    return '<div class="card" style="margin-bottom:8px">'+
+      '<div class="card-row" style="justify-content:space-between">'+
+      '<div class="hospital-name">🏥 '+h.name+'</div>'+
+      (h.dist!=null?'<div class="hospital-dist">'+h.dist.toFixed(1)+' km</div>':'')+
+      '</div><div class="hospital-addr">'+h.addr+'</div>'+
+      '<div class="action-row" style="margin-top:8px">'+
+      (h.phone?'<a class="btn-outline" style="text-decoration:none;text-align:center" href="tel:'+h.phone+'">📞 CALL</a>':'<span></span>')+
+      '<a class="btn-primary" style="text-decoration:none;text-align:center" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination='+h.lat+','+h.lng+'">🧭 DIRECTIONS</a>'+
+      '</div></div>';
+  }).join('');
+}
+
+// ===== ALERTS & ANNOUNCEMENTS (feature 5) =====
+function saveAlertsPage(){
+  var page=document.getElementById('alerts-fb-page').value.trim();
+  if(!page){showToast('⚠️ Enter a Facebook Page','#D44000');return;}
+  localStorage.setItem('alerts-fb-page',page);
+  loadAlertsPage();
+  showToast('✓ Alerts page saved!');
+}
+function loadAlertsPage(){
+  var page=localStorage.getItem('alerts-fb-page');
+  if(!page)return;
+  document.getElementById('alerts-fb-page').value=page;
+  var url=page.indexOf('http')===0?page:('https://www.facebook.com/'+page.replace(/^@/,''));
+  var iframe='<iframe src="https://www.facebook.com/plugins/page.php?href='+encodeURIComponent(url)+'&tabs=timeline&width=340&height=420&small_header=true&hide_cover=false" width="100%" height="420" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="encrypted-media"></iframe>';
+  document.getElementById('alerts-feed').innerHTML=iframe;
+  document.getElementById('alerts-feed-wrap').style.display='block';
+}
+
+// ===== INCIDENT REPORT (feature 6) =====
+function buildIncidentReport(){
+  var page=document.getElementById('report-fb-page').value.trim();
+  if(page)localStorage.setItem('report-fb-page',page);
+  var target=document.getElementById('report-target').value.trim();
+  var notes=document.getElementById('report-notes').value.trim();
+  var name=localStorage.getItem('p-name')||'(name not set in profile)';
+  var addr=localStorage.getItem('p-address')||'(address not set in profile)';
+  var brgy=localStorage.getItem('p-brgy-name')||'';
+  var loc=lastPos?(lastPos.lat.toFixed(6)+', '+lastPos.lng.toFixed(6)+' (https://www.google.com/maps?q='+lastPos.lat+','+lastPos.lng+')'):'GPS not available';
+  var msg='🆘 EMERGENCY REPORT — via Parañaque Emergency Ready app\n\n'+
+    'Reporting person: '+name+'\n'+
+    'Address: '+addr+(brgy?(', Brgy. '+brgy):'')+'\n'+
+    'Current location: '+loc+'\n\n'+
+    'Could not reach: '+(target||'(not specified)')+'\n\n'+
+    'Situation:\n'+(notes||'(not specified)')+'\n\n'+
+    (page?('Sending to: facebook.com/'+page.replace(/^@/,'')+'\n'):'')+
+    '— Please send help or advise next steps. Thank you.';
+  document.getElementById('report-output').value=msg;
+  document.getElementById('report-output-wrap').style.display='block';
+}
+function copyReportText(){
+  var t=document.getElementById('report-output');
+  t.select();t.setSelectionRange(0,999999);
+  try{document.execCommand('copy');showToast('✓ Copied to clipboard!');}
+  catch(e){navigator.clipboard&&navigator.clipboard.writeText(t.value);showToast('✓ Copied!');}
+}
+function shareReportText(){
+  var text=document.getElementById('report-output').value;
+  if(navigator.share){navigator.share({title:'Emergency Report',text:text}).catch(function(){});}
+  else{copyReportText();showToast('Copied — paste it into Messenger/SMS');}
+}
+function loadReportPage(){
+  var page=localStorage.getItem('report-fb-page');
+  if(page)document.getElementById('report-fb-page').value=page;
+}
+
 // INIT
 window.addEventListener('load',function(){
-  loadProfile();loadGobag();
+  loadProfile();loadGobag();loadFamilyPlan();loadAlertsPage();loadReportPage();renderHospitalList();
+  initGPS();
   // Auto-advance splash after 3 seconds if user doesn't tap
   setTimeout(function(){
     if(document.getElementById('screen-splash').classList.contains('active')){
