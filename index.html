@@ -163,11 +163,11 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .camera-frame{background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:200px}
 .camera-frame img,.camera-frame canvas{width:100%;display:block}
 .hint-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 12px;font-size:11px;color:#7a5c00;line-height:1.4}
-.ice-card{background:linear-gradient(135deg,#8B0000,#a30000);border-radius:12px;padding:12px 14px;color:white;box-shadow:0 2px 8px rgba(139,0,0,0.35)}
+.ice-card{background:linear-gradient(135deg,#1a7a32,#228B22);border-radius:12px;padding:12px 14px;color:white;box-shadow:0 2px 8px rgba(26,122,50,0.4)}
 .ice-title{font-size:11px;font-weight:900;letter-spacing:0.5px;color:#FFD700;display:flex;align-items:center;gap:5px;margin-bottom:6px}
 .ice-row{font-size:12px;line-height:1.6}
 .ice-row b{color:#FFD700}
-.ice-call{display:block;text-align:center;text-decoration:none;background:white;color:#8B0000;font-weight:800;font-size:12px;border-radius:8px;padding:9px;margin-top:8px}
+.ice-call{display:block;text-align:center;text-decoration:none;background:white;color:#1a7a32;font-weight:800;font-size:12px;border-radius:8px;padding:9px;margin-top:8px}
 .ice-setup{background:white;border:2px dashed #8B0000;border-radius:12px;padding:12px 14px;text-align:center;font-size:12px;color:#8B0000;font-weight:700}
 .num-pick-btn{display:flex;align-items:center;gap:12px;width:100%;background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;text-decoration:none}
 .num-pick-label{font-size:11px;color:#888;font-weight:600;letter-spacing:1px;text-transform:uppercase}
@@ -990,22 +990,43 @@ function initGPS(){
     return;
   }
   setGpsUI('searching','LOCATING GPS…');
-  // Request high-accuracy location — this triggers the system permission / GPS prompt
+  // Clear any previous watch
+  if(window.__gpsWatchId!=null){
+    try{navigator.geolocation.clearWatch(window.__gpsWatchId);}catch(e){}
+    window.__gpsWatchId=null;
+  }
   navigator.geolocation.getCurrentPosition(function(pos){
     lastPos={lat:pos.coords.latitude,lng:pos.coords.longitude};
     setGpsUI('locked','GPS LOCKED · '+lastPos.lat.toFixed(4)+', '+lastPos.lng.toFixed(4));
     renderHospitalList();
   },function(err){
     var msg='GPS UNAVAILABLE (tap to retry)';
-    if(err&&err.code===1)msg='LOCATION PERMISSION DENIED (tap to retry)';
-    else if(err&&err.code===3)msg='GPS TIMED OUT (tap to retry)';
-    else if(err&&err.code===2)msg='GPS OFF — please turn on Location (tap to retry)';
+    if(err&&err.code===1){
+      msg='LOCATION PERMISSION DENIED — enable Location for this app in Settings, then tap here';
+    }else if(err&&err.code===3){
+      msg='GPS TIMED OUT (tap to retry)';
+    }else if(err&&err.code===2){
+      msg='GPS OFF — turn on Location, then tap here';
+    }
     setGpsUI('',msg);
-    renderHospitalList(); // still show hospitals without distance
-  },{enableHighAccuracy:true,timeout:25000,maximumAge:30000});
+    renderHospitalList();
+  },{enableHighAccuracy:true,timeout:25000,maximumAge:15000});
 }
 
-document.getElementById('gps-badge').addEventListener('click',initGPS);
+// Make every GPS status badge tappable to retry
+['gps-badge','gps-text','gps-dot','gps-dot-cam','gps-text-cam','gps-dot-hosp','gps-text-hosp'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el){
+    el.style.cursor='pointer';
+    el.addEventListener('click',function(e){e.preventDefault();initGPS();});
+  }
+});
+// Also allow tapping the whole hospital GPS row
+document.querySelectorAll('.gps-badge').forEach(function(el){
+  el.style.cursor='pointer';
+  el.addEventListener('click',function(e){e.preventDefault();initGPS();});
+});
+
 function setManualLocation(){
   var input=window.prompt('Enter coordinates as: latitude, longitude\n(e.g. 14.4793, 121.0198)','');
   if(!input)return;
@@ -1045,18 +1066,21 @@ function handleCameraPhoto(e){
 
       var fontSize=Math.max(12,Math.round(w*0.026));
       ctx.font='bold '+fontSize+'px Arial';
-      var padX=10,padY=8,lineH=Math.round(fontSize*1.35);
+      var padX=12,padY=8,lineH=Math.round(fontSize*1.35);
       var textW=0;
       lines.forEach(function(l){textW=Math.max(textW,ctx.measureText(l).width);});
       var boxH=lineH*lines.length+padY*2;
-      var boxW=Math.min(w-16,textW+padX*2+8);
-      ctx.fillStyle='rgba(0,0,0,0.6)';
-      ctx.fillRect(w-boxW-8,h-boxH-8,boxW,boxH);
-      ctx.textAlign='right';
+      var boxW=Math.min(w-24,textW+padX*2+8);
+      // Lower CENTER of the photo
+      var boxX=Math.round((w-boxW)/2);
+      var boxY=h-boxH-Math.round(h*0.06);
+      ctx.fillStyle='rgba(0,0,0,0.65)';
+      ctx.fillRect(boxX,boxY,boxW,boxH);
+      ctx.textAlign='center';
       lines.forEach(function(l,i){
         ctx.fillStyle=(i===0)?'#FFD700':'white';
         ctx.font=(i===0?'bold ':'')+fontSize+'px Arial';
-        ctx.fillText(l,w-padX-8,h-8-padY-(lines.length-1-i)*lineH,boxW-padX);
+        ctx.fillText(l,w/2,boxY+padY+fontSize+(i*lineH),boxW-padX);
       });
 
       var frame=document.getElementById('camera-frame');
