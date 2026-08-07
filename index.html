@@ -32,10 +32,10 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .contact-btn{border:none;border-radius:12px;padding:0;cursor:pointer;overflow:hidden;display:flex;align-items:stretch;width:100%;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,0.2);text-decoration:none;outline:none;-webkit-tap-highlight-color:transparent}
 .contact-icon{width:60px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;background:rgba(0,0,0,0.15)}
 .contact-info{flex:1;padding:11px 13px}
-.contact-name{font-size:20px;font-weight:900;letter-spacing:0.5px;color:#fff}
+.contact-name{font-size:22px;font-weight:900;letter-spacing:0.5px;color:#fff}
 .contact-number{font-size:11px;margin-top:3px;line-height:1.5;color:rgba(255,255,255,0.92);font-weight:600}
 .contact-call{width:46px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.18);font-size:20px;flex-shrink:0}
-.btn-911{background:#F5C400}.btn-911 .contact-name{color:#2b1d00}.btn-911 .contact-number{color:#3d2900;font-weight:700}
+.btn-911{background:#F5C400}.btn-911 .contact-name{color:#CC0000}.btn-911 .contact-number{color:#3d2900;font-weight:700}
 .btn-eoc{background:#1a7a32}
 .btn-bfp{background:#e01000}
 .btn-pnp{background:#0a2050}
@@ -81,7 +81,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .profile-section-title h3{font-size:12px;font-weight:700;color:#8B0000;letter-spacing:1px;text-transform:uppercase}
 .profile-field{margin-bottom:10px}
 .profile-field label{display:block;font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.profile-field input,.profile-field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;color:#333;background:#fafafa;outline:none;font-family:Arial,sans-serif}
+.profile-field input,.profile-field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-weight:700;color:#111;background:#fafafa;outline:none;font-family:Arial,sans-serif}
 .profile-field input:focus,.profile-field select:focus{border-color:#8B0000;background:white}
 .save-btn{background:#8B0000;color:white;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;width:100%;margin-top:4px}
 /* GO BAG */
@@ -158,7 +158,7 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .hospital-addr{font-size:11px;color:#666;margin-top:2px}
 .family-member{background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;padding:10px;margin-bottom:8px;position:relative}
 .family-member .remove-x{position:absolute;top:6px;right:8px;background:none;border:none;color:#aaa;font-size:16px;cursor:pointer}
-.profile-field textarea{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;color:#333;background:#fafafa;outline:none;font-family:Arial,sans-serif;resize:vertical;min-height:70px}
+.profile-field textarea{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-weight:700;color:#111;background:#fafafa;outline:none;font-family:Arial,sans-serif;resize:vertical;min-height:70px}
 .add-btn{background:none;border:2px dashed #8B0000;color:#8B0000;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%}
 .camera-frame{background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:200px}
 .camera-frame img,.camera-frame canvas{width:100%;display:block}
@@ -169,6 +169,8 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
 .ice-row b{color:#FFD700}
 .ice-call{display:block;text-align:center;text-decoration:none;background:white;color:#1a7a32;font-weight:800;font-size:12px;border-radius:8px;padding:9px;margin-top:8px}
 .ice-setup{background:white;border:2px dashed #8B0000;border-radius:12px;padding:12px 14px;text-align:center;font-size:12px;color:#8B0000;font-weight:700}
+.blood-badge{background:white;border-radius:12px;flex-shrink:0;width:64px;height:64px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.25)}
+.blood-badge-type{color:#CC0000;font-weight:900;font-size:22px;line-height:1;text-align:center}
 .num-pick-btn{display:flex;align-items:center;gap:12px;width:100%;background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;text-decoration:none}
 .num-pick-label{font-size:11px;color:#888;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .num-pick-num{font-size:15px;color:#1a1a2e;font-weight:700;margin-top:2px}
@@ -238,21 +240,6 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     </div>
     <div id="barangay-extra-list" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 12px"></div>
   </div>
-  <div class="section-title" style="margin:4px 12px 0">
-    <span class="section-line"></span><span>QUICK ACCESS</span><span class="section-line"></span>
-  </div>
-  <div class="menu-items">
-    <div class="menu-item" onclick="showScreen('profile')">
-      <div class="menu-item-icon">👤</div>
-      <div class="menu-item-text"><h3>MY EMERGENCY PROFILE</h3><p>View / Edit your medical info</p></div>
-      <span class="menu-item-arrow">›</span>
-    </div>
-    <div class="menu-item" onclick="showScreen('more')">
-      <div class="menu-item-icon" style="background:#1a1a2e">☰</div>
-      <div class="menu-item-text"><h3>MORE TOOLS</h3><p>Go Bag, Family Plan, Hospitals, Alerts, and more</p></div>
-      <span class="menu-item-arrow">›</span>
-    </div>
-  </div>
   <div style="height:16px"></div>
 </div>
 
@@ -321,7 +308,18 @@ body{font-family:Arial,sans-serif;background:#0a0a1a;display:flex;justify-conten
     </div>
     <div class="profile-section">
       <div class="profile-section-title"><span style="font-size:16px">🏘️</span><h3>Barangay Information</h3></div>
-      <div class="profile-field"><label>Barangay Name</label><input type="text" placeholder="e.g. San Dionisio" id="p-brgy-name"></div>
+      <div class="profile-field"><label>Barangay Name</label>
+        <select id="p-brgy-name">
+          <option value="">Select barangay...</option>
+          <option>Baclaran</option><option>Don Bosco</option><option>Don Galo</option>
+          <option>La Huerta</option><option>Manuyo Uno</option><option>Manuyo Dos</option>
+          <option>Marcelo Green</option><option>Paranaque I</option><option>Paranaque II</option>
+          <option>Paranaque III</option><option>Paranaque IV</option><option>Paranaque V</option>
+          <option>Paranaque VI</option><option>San Antonio</option><option>San Dionisio</option>
+          <option>San Isidro</option><option>San Martin de Porres</option>
+          <option>Santo Nino</option><option>Sun Valley</option><option>Tambo</option><option>Vitalez</option>
+        </select>
+      </div>
       <div class="profile-field"><label>Barangay Contact Number</label><input type="tel" placeholder="Your barangay hotline" id="p-brgy-num"></div>
     </div>
     <button class="save-btn" onclick="saveProfile()">💾 SAVE PROFILE</button>
@@ -1051,14 +1049,17 @@ function renderIceCard(){
   var blood=(localStorage.getItem('p-blood')||'').trim();
   var allergies=(localStorage.getItem('p-allergies')||'').trim();
   var conditions=(localStorage.getItem('p-conditions')||'').trim();
-  var html='<div class="ice-card">'+
+  var bloodBadge=blood?('<div class="blood-badge"><div class="blood-badge-type">'+esc(blood)+'</div></div>'):'';
+  var html='<div class="ice-card" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
+    '<div style="flex:1;min-width:0">'+
     '<div class="ice-title">🚑 IN CASE OF EMERGENCY — FOR RESPONDERS</div>'+
     '<div class="ice-row"><b>'+esc(name||'Name not set')+'</b></div>'+
-    (blood?'<div class="ice-row">Blood type: <b>'+esc(blood)+'</b></div>':'')+
     (allergies?'<div class="ice-row">Allergies: <b>'+esc(allergies)+'</b></div>':'')+
     (conditions?'<div class="ice-row">Conditions: <b>'+esc(conditions)+'</b></div>':'')+
     (ecName?'<div class="ice-row">Emergency contact: <b>'+esc(ecName)+(ecRel?' ('+esc(ecRel)+')':'')+'</b></div>':'')+
     (ecNum?'<a class="ice-call" href="tel:'+ecNum.replace(/\D/g,'')+'">📞 CALL EMERGENCY CONTACT — '+esc(ecNum)+'</a>':'')+
+    '</div>'+
+    bloodBadge+
     '</div>';
   wrap.innerHTML=html;
 }
@@ -1367,13 +1368,24 @@ function renderHospitalList(){
     var dist=lastPos?haversine(lastPos.lat,lastPos.lng,hpt.lat,hpt.lng):null;
     return Object.assign({},hpt,{dist:dist});
   });
-  if(lastPos)items.sort(function(a,b){return a.dist-b.dist;});
+  // Group government hospitals above private ones; sort by distance within each group
+  items.sort(function(a,b){
+    if(a.type!==b.type)return a.type==='gov'?-1:1;
+    if(lastPos)return a.dist-b.dist;
+    return 0;
+  });
+  var lastType=null;
   list.innerHTML=items.map(function(h, i){
+    var sectionHeader='';
+    if(h.type!==lastType){
+      sectionHeader='<div class="section-title" style="margin:'+(i===0?'0':'12px')+' 0 8px;border-radius:8px"><span class="section-line"></span><span>'+(h.type==='gov'?'GOVERNMENT HOSPITALS':'PRIVATE HOSPITALS')+'</span><span class="section-line"></span></div>';
+      lastType=h.type;
+    }
     var typeBadge=h.type==='gov'
       ? '<span style="font-size:9px;font-weight:700;background:#1a7a32;color:white;padding:2px 6px;border-radius:999px;margin-left:6px">GOVERNMENT</span>'
       : '<span style="font-size:9px;font-weight:700;background:#1565C0;color:white;padding:2px 6px;border-radius:999px;margin-left:6px">PRIVATE</span>';
     var phoneClean=(h.phone||'').replace(/\D/g,'');
-    return '<div class="card" style="margin-bottom:8px">'+
+    return sectionHeader+'<div class="card" style="margin-bottom:8px">'+
       '<div class="card-row" style="justify-content:space-between;align-items:flex-start">'+
       '<div class="hospital-name">🏥 '+h.name+typeBadge+'</div>'+
       (h.dist!=null?'<div class="hospital-dist">'+h.dist.toFixed(1)+' km away</div>':'<div class="hospital-dist" style="background:#eee;color:#666">GPS needed</div>')+
